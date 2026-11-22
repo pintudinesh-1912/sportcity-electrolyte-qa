@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "member.json",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "email",
+    "membership"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "membership": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "plan",
+        "status"
+      ],
+      "properties": {
+        "plan": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ACTIVE",
+            "FROZEN",
+            "EXPIRED"
+          ]
+        }
+      }
+    }
+  }
+}

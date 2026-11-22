@@ -1,0 +1,276 @@
+openapi: 3.0.3
+info:
+  title: SportCity Electrolyte API (Assessment Subset)
+  version: "2.0.0"
+  description: >
+    Electrolyte is the integration/middle layer between the SportCity clients
+    (web & mobile) and Perfect Gym (PG), which is the CRM and the source of
+    truth for members, memberships and bookings. This document specifies the
+    INTENDED behaviour of the in-scope endpoints. Treat it as the contract the
+    implementation is expected to honour.
+
+    Business rules:
+      * Membership freeze — a member may freeze their membership (e.g. injury
+        or travel). While the membership state is FROZEN the member CANNOT book
+        classes; PG rejects such bookings and Electrolyte must surface the
+        failure to the caller.
+      * Membership tiers — there are two standard plans: City One (single club)
+        and City Plus (all clubs). City Plus costs a few euros MORE than City
+        One. Discounted plans (category "discounted", e.g. City Student) are
+        priced lower by design and are not part of this comparison.
+      * Availability integrity — the spots shown for a class MUST reflect the
+        true capacity in Perfect Gym.
+
+    All monetary amounts are in EUR with 2 decimal places. All timestamps are
+    ISO 8601 with an explicit timezone offset. Class times are scheduled in
+    Europe/Amsterdam local time.
+
+servers:
+  - url: http://localhost:3000
+    description: Local mock
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /v1/classes:
+    get:
+      summary: List bookable group classes
+      description: >
+        spots_available MUST reflect the true remaining capacity held in
+        Perfect Gym. start_time MUST be ISO 8601 with the correct timezone
+        offset (Europe/Amsterdam).
+      responses:
+        "200":
+          description: List of classes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Class" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/plans:
+    get:
+      summary: List membership plans and their prices
+      description: >
+        Returns the available plans with their monthly price. Per the tier rule,
+        City Plus must be priced HIGHER than City One. Prices are EUR with 2
+        decimal places.
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Plan" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/members/{memberId}:
+    get:
+      summary: Get a member and their current membership
+      description: >
+        membership.status MUST reflect the current state held in Perfect Gym
+        (ACTIVE, FROZEN or EXPIRED). If the member does not exist, the endpoint
+        MUST return 404 with an Error body.
+      parameters:
+        - name: memberId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: The member
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Member" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/memberships:
+    post:
+      summary: Purchase / activate a membership
+      description: >
+        Returns the plan's monthly price. Per the tier rule, City Plus must be
+        priced HIGHER than City One. monthlyPrice is an EUR amount with 2
+        decimal places.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [memberId, planId]
+              properties:
+                memberId: { type: string, example: "M-1004" }
+                planId:
+                  type: string
+                  enum: [CITY-ONE, CITY-PLUS, CITY-STUDENT]
+                  example: "CITY-ONE"
+      responses:
+        "201":
+          description: Membership created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Membership" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/bookings:
+    post:
+      summary: Book a group class
+      description: >
+        Booking rules:
+          * The class must have spots available in Perfect Gym, otherwise
+            return 409 class_full.
+          * The member's membership must be ACTIVE in Perfect Gym. If the
+            membership is FROZEN (or otherwise not active) PG rejects the
+            booking and Electrolyte MUST propagate the failure as 422 — it MUST
+            NOT return a success response for a booking PG did not accept.
+          * The endpoint MUST be idempotent. If an Idempotency-Key header is
+            supplied and a booking already exists for that key, the original
+            booking MUST be returned and NO second booking may be created.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [memberId, classId]
+              properties:
+                memberId: { type: string, example: "M-1001" }
+                classId:  { type: string, example: "C-2001" }
+      responses:
+        "201":
+          description: Booking confirmed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: Class is full
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: Membership not active (e.g. frozen) — booking rejected by PG
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+
+  schemas:
+    Class:
+      type: object
+      properties:
+        id: { type: string, example: "C-2001" }
+        name: { type: string, example: "Spinning" }
+        start_time:
+          type: string
+          format: date-time
+          description: ISO 8601 with timezone offset, Europe/Amsterdam local time.
+          example: "2027-06-21T18:00:00+02:00"
+        capacity: { type: integer }
+        spots_available:
+          type: integer
+          description: Must reflect the true remaining capacity in Perfect Gym.
+
+    Plan:
+      type: object
+      properties:
+        id: { type: string, example: "CITY-ONE" }
+        name: { type: string, example: "City One" }
+        coverage: { type: string, example: "Single home club" }
+        category:
+          type: string
+          enum: [standard, discounted]
+          description: Standard plans follow the tier rule; discounted plans are priced lower by design.
+        currency: { type: string, example: "EUR" }
+        monthlyPrice:
+          type: number
+          description: EUR, 2 decimals. Among standard plans, City Plus must be higher than City One.
+          example: 34.99
+
+    Member:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        membership:
+          nullable: true
+          type: object
+          properties:
+            plan: { type: string, example: "City Plus" }
+            status:
+              type: string
+              enum: [ACTIVE, FROZEN, EXPIRED]
+              description: Must reflect the current Perfect Gym state.
+
+    Membership:
+      type: object
+      properties:
+        membershipId: { type: string }
+        memberId: { type: string }
+        plan: { type: string, example: "City One" }
+        currency: { type: string, example: "EUR" }
+        monthlyPrice:
+          type: number
+          description: EUR, 2 decimals. City Plus must be higher than City One.
+          example: 34.99
+        status: { type: string }
+
+    Booking:
+      type: object
+      properties:
+        bookingId: { type: string }
+        memberId: { type: string }
+        classId: { type: string }
+        className: { type: string }
+        status: { type: string, enum: [CONFIRMED] }
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

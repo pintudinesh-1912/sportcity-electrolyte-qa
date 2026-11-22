@@ -1,0 +1,21 @@
+{
+  "_comment": "Expected state, transcribed from the Perfect Gym screens in the kit (PG is the source of truth). In a real environment this would come from PG's API or a seeded fixture.",
+  "members": {
+    "M-1001": {"name": "Anna de Vries", "email": "anna@example.com", "membership": {"plan": "City Plus", "status": "ACTIVE"}},
+    "M-1002": {"name": "Tom Bakker", "email": "tom@example.com", "membership": {"plan": "City One", "status": "FROZEN"}},
+    "M-1003": {"name": "Lisa Jansen", "email": "lisa@example.com", "membership": {"plan": "City One", "status": "EXPIRED"}},
+    "M-1004": {"name": "Sara Visser", "email": "sara@example.com", "membership": null}
+  },
+  "plans": {
+    "CITY-ONE": {"name": "City One", "category": "standard"},
+    "CITY-PLUS": {"name": "City Plus", "category": "standard"},
+    "CITY-STUDENT": {"name": "City Student", "category": "discounted"}
+  },
+  "classes": {
+    "C-2001": {"name": "Spinning", "start_time": "2027-06-21T18:00:00+02:00", "capacity": 20, "spots_available": 15},
+    "C-2002": {"name": "Yoga", "start_time": "2027-06-22T09:00:00+02:00", "capacity": 15, "spots_available": 0},
+    "C-2003": {"name": "BodyPump", "start_time": "2027-06-23T19:30:00+02:00", "capacity": 25, "spots_available": 15},
+    "C-2004": {"name": "HIIT Express", "start_time": "2027-06-24T07:00:00+02:00", "capacity": 20, "spots_available": 0},
+    "C-2005": {"name": "Pilates", "start_time": "2027-11-15T18:00:00+01:00", "capacity": 12, "spots_available": 9}
+  }
+}

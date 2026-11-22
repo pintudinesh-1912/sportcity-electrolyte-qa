@@ -1,0 +1,40 @@
+# spots_available for C-2003 before booking: 15
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -H Idempotency-Key:\ t5-1795310009 -d '{"memberId":"M-1001","classId":"C-2003"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "bookingId": "BK-5004",
+  "memberId": "M-1001",
+  "classId": "C-2003",
+  "status": "CONFIRMED",
+  "className": "BodyPump",
+  "idempotencyKey": "t5-1795310009"
+}
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -H Idempotency-Key:\ t5-1795310009 -d '{"memberId":"M-1001","classId":"C-2003"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:30 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "bookingId": "BK-5005",
+  "memberId": "M-1001",
+  "classId": "C-2003",
+  "status": "CONFIRMED",
+  "className": "BodyPump",
+  "idempotencyKey": "t5-1795310009"
+}
+
+# spots_available for C-2003 after original + retry (expected: before - 1): 13
+

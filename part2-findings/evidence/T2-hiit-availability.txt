@@ -1,0 +1,65 @@
+$ curl -X GET http://localhost:3000/v1/classes -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "data": [
+    {
+      "id": "C-2001",
+      "name": "Spinning",
+      "start_time": "2027-06-21T18:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2002",
+      "name": "Yoga",
+      "start_time": "2027-06-22T09:00:00+02:00",
+      "capacity": 15,
+      "spots_available": 0
+    },
+    {
+      "id": "C-2003",
+      "name": "BodyPump",
+      "start_time": "2027-06-23T19:30:00+02:00",
+      "capacity": 25,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2004",
+      "name": "HIIT Express",
+      "start_time": "2027-06-24T07:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 4
+    },
+    {
+      "id": "C-2005",
+      "name": "Pilates",
+      "start_time": "2027-11-15T18:00:00+01:00",
+      "capacity": 12,
+      "spots_available": 9
+    }
+  ]
+}
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1001","classId":"C-2004"}'
+
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "error": {
+    "code": "class_full",
+    "message": "No spots available for this class."
+  }
+}
+

@@ -1,0 +1,60 @@
+# spots_available for C-2001 before any booking: 15
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1001","classId":"C-2001"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "bookingId": "BK-5001",
+  "memberId": "M-1001",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning",
+  "idempotencyKey": null
+}
+
+# spots_available for C-2001 after booking by M-1001: 14
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1002","classId":"C-2001"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+
+# spots_available for C-2001 after booking by M-1002: 14
+
+$ curl -X POST http://localhost:3000/v1/bookings -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1003","classId":"C-2001"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+
+# spots_available for C-2001 after booking by M-1003: 14
+

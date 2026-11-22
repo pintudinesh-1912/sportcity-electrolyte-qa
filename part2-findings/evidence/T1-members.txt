@@ -1,0 +1,84 @@
+$ curl -X GET http://localhost:3000/v1/members/M-1001 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "id": "M-1001",
+  "name": "Anna de Vries",
+  "email": "anna@example.com",
+  "membership": {
+    "plan": "City Plus",
+    "status": "ACTIVE"
+  }
+}
+
+$ curl -X GET http://localhost:3000/v1/members/M-1002 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "id": "M-1002",
+  "name": "Tom Bakker",
+  "email": "tom@example.com",
+  "membership": {
+    "plan": "City One",
+    "status": "FROZEN"
+  }
+}
+
+$ curl -X GET http://localhost:3000/v1/members/M-1003 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "id": "M-1003",
+  "name": "Lisa Jansen",
+  "email": "lisa@example.com",
+  "membership": {
+    "plan": "City One",
+    "status": "EXPIRED"
+  }
+}
+
+$ curl -X GET http://localhost:3000/v1/members/M-1004 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+
+$ curl -X GET http://localhost:3000/v1/members/M-9999 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+null
+

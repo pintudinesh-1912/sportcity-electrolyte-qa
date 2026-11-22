@@ -1,0 +1,2248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="SportCity Electrolyte API tests" tests="37" time="0.036">
+  <testsuite name="00 Auth and contract / [P1] GET /v1/classes without API key -> 401" id="575c30ae-973e-42f1-be0c-85181bac2e50" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.012">
+    <testcase name="[common] Responds within 1000 ms" time="0.012" classname="00AuthAndContractP1GetV1ClassesWithoutApiKey401"/>
+    <testcase name="[common] Content-Type is application/json" time="0.012" classname="00AuthAndContractP1GetV1ClassesWithoutApiKey401"/>
+    <testcase name="Status is 401" time="0.012" classname="00AuthAndContractP1GetV1ClassesWithoutApiKey401"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.012" classname="00AuthAndContractP1GetV1ClassesWithoutApiKey401"/>
+    <testcase name="error.code is &quot;unauthorized&quot;" time="0.012" classname="00AuthAndContractP1GetV1ClassesWithoutApiKey401"/>
+  </testsuite>
+  <testsuite name="00 Auth and contract / [P1] GET /v1/plans with invalid API key -> 401" id="2eef8ff9-c113-4b46-a0af-f561a56d2ffc" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="00AuthAndContractP1GetV1PlansWithInvalidApiKey401"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="00AuthAndContractP1GetV1PlansWithInvalidApiKey401"/>
+    <testcase name="Status is 401" time="0.001" classname="00AuthAndContractP1GetV1PlansWithInvalidApiKey401"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="00AuthAndContractP1GetV1PlansWithInvalidApiKey401"/>
+    <testcase name="error.code is &quot;unauthorized&quot;" time="0.001" classname="00AuthAndContractP1GetV1PlansWithInvalidApiKey401"/>
+  </testsuite>
+  <testsuite name="00 Auth and contract / [P0] GET /v1/members/{id} without API key -> 401" id="02b93e1f-5824-4e06-aa10-9613ce233a78" timestamp="2026-11-22T01:13:14.668Z" tests="6" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+    <testcase name="Status is 401" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+    <testcase name="error.code is &quot;unauthorized&quot;" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+    <testcase name="No personal data leaked" time="0.001" classname="00AuthAndContractP0GetV1MembersIdWithoutApiKey401"/>
+  </testsuite>
+  <testsuite name="00 Auth and contract / [P1] POST /v1/memberships without API key -> 401" id="9d49f9d4-5020-4357-9163-76f3d9b4f66e" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.002">
+    <testcase name="[common] Responds within 1000 ms" time="0.002" classname="00AuthAndContractP1PostV1MembershipsWithoutApiKey401"/>
+    <testcase name="[common] Content-Type is application/json" time="0.002" classname="00AuthAndContractP1PostV1MembershipsWithoutApiKey401"/>
+    <testcase name="Status is 401" time="0.002" classname="00AuthAndContractP1PostV1MembershipsWithoutApiKey401"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.002" classname="00AuthAndContractP1PostV1MembershipsWithoutApiKey401"/>
+    <testcase name="error.code is &quot;unauthorized&quot;" time="0.002" classname="00AuthAndContractP1PostV1MembershipsWithoutApiKey401"/>
+  </testsuite>
+  <testsuite name="00 Auth and contract / [P1] POST /v1/bookings without API key -> 401" id="9567cbcb-1be1-4d9b-a1d6-b6df9a9a9df3" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="00AuthAndContractP1PostV1BookingsWithoutApiKey401"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="00AuthAndContractP1PostV1BookingsWithoutApiKey401"/>
+    <testcase name="Status is 401" time="0.001" classname="00AuthAndContractP1PostV1BookingsWithoutApiKey401"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="00AuthAndContractP1PostV1BookingsWithoutApiKey401"/>
+    <testcase name="error.code is &quot;unauthorized&quot;" time="0.001" classname="00AuthAndContractP1PostV1BookingsWithoutApiKey401"/>
+  </testsuite>
+  <testsuite name="00 Auth and contract / [P2] Unknown route -> 404 Error body" id="3a1a486f-e093-447a-83ac-396060666217" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="00AuthAndContractP2UnknownRoute404ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="00AuthAndContractP2UnknownRoute404ErrorBody"/>
+    <testcase name="Status is 404" time="0.001" classname="00AuthAndContractP2UnknownRoute404ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="00AuthAndContractP2UnknownRoute404ErrorBody"/>
+  </testsuite>
+  <testsuite name="01 Members (AC1) / [P0] GET member M-1001 -> ACTIVE" id="37b55d4f-e214-406f-ae19-47696b856c87" timestamp="2026-11-22T01:13:14.668Z" tests="7" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="Status is 200" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="Body matches Member schema" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="id, name and email match Perfect Gym" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="Membership status is ACTIVE (current PG state)" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+    <testcase name="Membership plan is City Plus" time="0.001" classname="01MembersAc1P0GetMemberM1001Active"/>
+  </testsuite>
+  <testsuite name="01 Members (AC1) / [P0] GET member M-1002 -> FROZEN" id="f4aa8180-4b44-4f81-a93d-1b9bff988dca" timestamp="2026-11-22T01:13:14.668Z" tests="7" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="Status is 200" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="Body matches Member schema" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="id, name and email match Perfect Gym" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="Membership status is FROZEN (current PG state)" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+    <testcase name="Membership plan is City One" time="0.001" classname="01MembersAc1P0GetMemberM1002Frozen"/>
+  </testsuite>
+  <testsuite name="01 Members (AC1) / [P0] GET member M-1003 -> EXPIRED" id="cdc21453-5c59-4352-9bb2-83e9a07c3d11" timestamp="2026-11-22T01:13:14.668Z" tests="7" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="Status is 200" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="Body matches Member schema" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="id, name and email match Perfect Gym" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="Membership status is EXPIRED (current PG state)" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+    <testcase name="Membership plan is City One" time="0.001" classname="01MembersAc1P0GetMemberM1003Expired"/>
+  </testsuite>
+  <testsuite name="01 Members (AC1) / [P0] GET member M-1004 -> no membership (prospect)" id="f42d58ef-b59d-4d10-b226-74a538b05fb5" timestamp="2026-11-22T01:13:14.668Z" tests="6" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+    <testcase name="Status is 200" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+    <testcase name="Body matches Member schema" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+    <testcase name="id, name and email match Perfect Gym" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+    <testcase name="membership is null for a prospect" time="0.001" classname="01MembersAc1P0GetMemberM1004NoMembershipProspect"/>
+  </testsuite>
+  <testsuite name="01 Members (AC1) / [P0] GET unknown member M-9999 -> 404 Error body" id="9e7952ee-4550-44a5-97cb-014b523a770f" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="2" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="01MembersAc1P0GetUnknownMemberM9999404ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="01MembersAc1P0GetUnknownMemberM9999404ErrorBody"/>
+    <testcase name="Status is 404 (member does not exist)" time="0.000" classname="01MembersAc1P0GetUnknownMemberM9999404ErrorBody">
+      <failure type="AssertionFailure" message="expected response to have status code 404 but got 200&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/members/M-9999&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (0 ms, 4 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;null&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 01 Members (AC1) / [P0] GET unknown member M-9999 -> 404 Error body.]]>
+        <![CDATA[Test description: Status is 404 (member does not exist).]]>
+        <![CDATA[Error message: expected response to have status code 404 but got 200
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-9999
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 4 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+null
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 404 but got 200
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-9999
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 4 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+null
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:11).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="01MembersAc1P0GetUnknownMemberM9999404ErrorBody">
+      <failure type="AssertionFailure" message="expected data to satisfy schema but found following errors: &#xA;data should be object&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/members/M-9999&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (0 ms, 4 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;null&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 01 Members (AC1) / [P0] GET unknown member M-9999 -> 404 Error body.]]>
+        <![CDATA[Test description: Body is an Error object {error:{code,message}}.]]>
+        <![CDATA[Error message: expected data to satisfy schema but found following errors: 
+data should be object
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-9999
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 4 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+null
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected data to satisfy schema but found following errors: 
+data should be object
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-9999
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8e30787f-f8e6-4147-9bca-d63d1f7a7cbf
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 4 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+null
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:11).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="02 Plans (AC2) / [P0] GET /v1/plans -> prices, currency and tier rule" id="f976da61-74ec-407d-96cf-eece7b80473e" timestamp="2026-11-22T01:13:14.668Z" tests="9" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="Status is 200" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="Body matches Plans list schema" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="All three plans are offered" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="Every price is EUR with at most 2 decimals" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="City One and City Plus are 'standard', City Student is 'discounted'" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+    <testcase name="Tier rule: City Plus is priced HIGHER than City One" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule">
+      <failure type="AssertionFailure" message="City Plus price: expected 34.99 to be above 39.99&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/plans&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 07abbaf9-116c-4f32-9789-f4d604905788&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (0 ms, 596 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;data&quot;: [&#xA;    {&#xA;      &quot;id&quot;: &quot;CITY-ONE&quot;,&#xA;      &quot;name&quot;: &quot;City One&quot;,&#xA;      &quot;coverage&quot;: &quot;Single home club&quot;,&#xA;      &quot;category&quot;: &quot;standard&quot;,&#xA;      &quot;currency&quot;: &quot;EUR&quot;,&#xA;      &quot;monthlyPrice&quot;: 39.99&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;CITY-PLUS&quot;,&#xA;      &quot;name&quot;: &quot;City Plus&quot;,&#xA;      &quot;coverage&quot;: &quot;All SportCity clubs&quot;,&#xA;      &quot;category&quot;: &quot;standard&quot;,&#xA;      &quot;currency&quot;: &quot;EUR&quot;,&#xA;      &quot;monthlyPrice&quot;: 34.99&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;CITY-STUDENT&quot;,&#xA;      &quot;name&quot;: &quot;City Student&quot;,&#xA;      &quot;coverage&quot;: &quot;Single home club (students)&quot;,&#xA;      &quot;category&quot;: &quot;discounted&quot;,&#xA;      &quot;currency&quot;: &quot;EUR&quot;,&#xA;      &quot;monthlyPrice&quot;: 29.99&#xA;    }&#xA;  ]&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 02 Plans (AC2) / [P0] GET /v1/plans -> prices, currency and tier rule.]]>
+        <![CDATA[Test description: Tier rule: City Plus is priced HIGHER than City One.]]>
+        <![CDATA[Error message: City Plus price: expected 34.99 to be above 39.99
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/plans
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 07abbaf9-116c-4f32-9789-f4d604905788
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 596 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "CITY-ONE",
+      "name": "City One",
+      "coverage": "Single home club",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 39.99
+    },
+    {
+      "id": "CITY-PLUS",
+      "name": "City Plus",
+      "coverage": "All SportCity clubs",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 34.99
+    },
+    {
+      "id": "CITY-STUDENT",
+      "name": "City Student",
+      "coverage": "Single home club (students)",
+      "category": "discounted",
+      "currency": "EUR",
+      "monthlyPrice": 29.99
+    }
+  ]
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: City Plus price: expected 34.99 to be above 39.99
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/plans
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 07abbaf9-116c-4f32-9789-f4d604905788
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 596 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "CITY-ONE",
+      "name": "City One",
+      "coverage": "Single home club",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 39.99
+    },
+    {
+      "id": "CITY-PLUS",
+      "name": "City Plus",
+      "coverage": "All SportCity clubs",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 34.99
+    },
+    {
+      "id": "CITY-STUDENT",
+      "name": "City Student",
+      "coverage": "Single home club (students)",
+      "category": "discounted",
+      "currency": "EUR",
+      "monthlyPrice": 29.99
+    }
+  ]
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:6:12).]]>
+      </failure>
+    </testcase>
+    <testcase name="Discounted City Student is cheaper than both standard plans" time="0.000" classname="02PlansAc2P0GetV1PlansPricesCurrencyAndTierRule"/>
+  </testsuite>
+  <testsuite name="03 Classes (AC3) / [P0] GET /v1/classes -> schedule, timezone and availability" id="e35df662-9261-4bac-ae61-a6f36bb4074d" timestamp="2026-11-22T01:13:14.668Z" tests="27" failures="1" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="Status is 200" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="Body matches Classes list schema" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="All scheduled classes are listed" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="start_time is ISO 8601 with an explicit offset" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2001 Spinning: start_time is 2027-06-21T18:00:00+02:00 (Europe/Amsterdam, DST-aware)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2001 Spinning: same instant as the PG schedule" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2001 Spinning: capacity is 20" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2001 Spinning: spots_available is 15 (true PG remaining capacity)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2002 Yoga: start_time is 2027-06-22T09:00:00+02:00 (Europe/Amsterdam, DST-aware)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2002 Yoga: same instant as the PG schedule" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2002 Yoga: capacity is 15" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2002 Yoga: spots_available is 0 (true PG remaining capacity)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2003 BodyPump: start_time is 2027-06-23T19:30:00+02:00 (Europe/Amsterdam, DST-aware)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2003 BodyPump: same instant as the PG schedule" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2003 BodyPump: capacity is 25" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2003 BodyPump: spots_available is 15 (true PG remaining capacity)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2004 HIIT Express: start_time is 2027-06-24T07:00:00+02:00 (Europe/Amsterdam, DST-aware)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2004 HIIT Express: same instant as the PG schedule" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2004 HIIT Express: capacity is 20" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2004 HIIT Express: spots_available is 0 (true PG remaining capacity)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability">
+      <failure type="AssertionFailure" message="expected 4 to deeply equal +0&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/classes&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: d75a5f59-1e25-4cbe-9444-468982be2998&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (1 ms, 814 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;data&quot;: [&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2001&quot;,&#xA;      &quot;name&quot;: &quot;Spinning&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-21T18:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 20,&#xA;      &quot;spots_available&quot;: 15&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2002&quot;,&#xA;      &quot;name&quot;: &quot;Yoga&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-22T09:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 15,&#xA;      &quot;spots_available&quot;: 0&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2003&quot;,&#xA;      &quot;name&quot;: &quot;BodyPump&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-23T19:30:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 25,&#xA;      &quot;spots_available&quot;: 15&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2004&quot;,&#xA;      &quot;name&quot;: &quot;HIIT Express&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-24T07:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 20,&#xA;      &quot;spots_available&quot;: 4&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2005&quot;,&#xA;      &quot;name&quot;: &quot;Pilates&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-11-15T18:00:00+01:00&quot;,&#xA;      &quot;capacity&quot;: 12,&#xA;      &quot;spots_available&quot;: 9&#xA;    }&#xA;  ]&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 03 Classes (AC3) / [P0] GET /v1/classes -> schedule, timezone and availability.]]>
+        <![CDATA[Test description: C-2004 HIIT Express: spots_available is 0 (true PG remaining capacity).]]>
+        <![CDATA[Error message: expected 4 to deeply equal +0
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/classes
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: d75a5f59-1e25-4cbe-9444-468982be2998
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 814 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "C-2001",
+      "name": "Spinning",
+      "start_time": "2027-06-21T18:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2002",
+      "name": "Yoga",
+      "start_time": "2027-06-22T09:00:00+02:00",
+      "capacity": 15,
+      "spots_available": 0
+    },
+    {
+      "id": "C-2003",
+      "name": "BodyPump",
+      "start_time": "2027-06-23T19:30:00+02:00",
+      "capacity": 25,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2004",
+      "name": "HIIT Express",
+      "start_time": "2027-06-24T07:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 4
+    },
+    {
+      "id": "C-2005",
+      "name": "Pilates",
+      "start_time": "2027-11-15T18:00:00+01:00",
+      "capacity": 12,
+      "spots_available": 9
+    }
+  ]
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 4 to deeply equal +0
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/classes
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: d75a5f59-1e25-4cbe-9444-468982be2998
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 814 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "C-2001",
+      "name": "Spinning",
+      "start_time": "2027-06-21T18:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2002",
+      "name": "Yoga",
+      "start_time": "2027-06-22T09:00:00+02:00",
+      "capacity": 15,
+      "spots_available": 0
+    },
+    {
+      "id": "C-2003",
+      "name": "BodyPump",
+      "start_time": "2027-06-23T19:30:00+02:00",
+      "capacity": 25,
+      "spots_available": 15
+    },
+    {
+      "id": "C-2004",
+      "name": "HIIT Express",
+      "start_time": "2027-06-24T07:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 4
+    },
+    {
+      "id": "C-2005",
+      "name": "Pilates",
+      "start_time": "2027-11-15T18:00:00+01:00",
+      "capacity": 12,
+      "spots_available": 9
+    }
+  ]
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:20:13).]]>
+      </failure>
+    </testcase>
+    <testcase name="C-2005 Pilates: start_time is 2027-11-15T18:00:00+01:00 (Europe/Amsterdam, DST-aware)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2005 Pilates: same instant as the PG schedule" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2005 Pilates: capacity is 12" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="C-2005 Pilates: spots_available is 9 (true PG remaining capacity)" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+    <testcase name="0 &lt;= spots_available &lt;= capacity for every class" time="0.001" classname="03ClassesAc3P0GetV1ClassesScheduleTimezoneAndAvailability"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P0] Purchase City One for prospect M-1004 -> 201" id="14b9a930-2618-42ac-ad5a-0d122cfd0e57" timestamp="2026-11-22T01:13:14.668Z" tests="8" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="Status is 201" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="Body matches Membership schema" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="memberId echoes the request" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="Price is EUR with at most 2 decimals" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="Price matches the GET /v1/plans catalogue price" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+    <testcase name="Membership is ACTIVE after purchase" time="0.001" classname="04MembershipsAc2P0PurchaseCityOneForProspectM1004201"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P0] Purchase City Plus for M-1004 -> 201, priced above City One" id="08e72c68-9b7b-4248-a488-943f454e939c" timestamp="2026-11-22T01:13:14.668Z" tests="9" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Status is 201" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Body matches Membership schema" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="memberId echoes the request" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Price is EUR with at most 2 decimals" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Price matches the GET /v1/plans catalogue price" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Membership is ACTIVE after purchase" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne"/>
+    <testcase name="Tier rule: purchased City Plus price > City One price" time="0.000" classname="04MembershipsAc2P0PurchaseCityPlusForM1004201PricedAboveCityOne">
+      <failure type="AssertionFailure" message="expected 34.99 to be above 39.99&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/memberships&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: a6fa451e-7ce5-4bab-8b5b-4236cb440c55&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 51&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1004&quot;,&#xA;  &quot;planId&quot;: &quot;CITY-PLUS&quot;&#xA;}&#xA;Response : 201 Created (0 ms, 147 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;membershipId&quot;: &quot;MS-27708&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1004&quot;,&#xA;  &quot;plan&quot;: &quot;City Plus&quot;,&#xA;  &quot;currency&quot;: &quot;EUR&quot;,&#xA;  &quot;monthlyPrice&quot;: 34.99,&#xA;  &quot;status&quot;: &quot;ACTIVE&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P0] Purchase City Plus for M-1004 -> 201, priced above City One.]]>
+        <![CDATA[Test description: Tier rule: purchased City Plus price > City One price.]]>
+        <![CDATA[Error message: expected 34.99 to be above 39.99
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: a6fa451e-7ce5-4bab-8b5b-4236cb440c55
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 51
+Request body:
+{
+  "memberId": "M-1004",
+  "planId": "CITY-PLUS"
+}
+Response : 201 Created (0 ms, 147 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "membershipId": "MS-27708",
+  "memberId": "M-1004",
+  "plan": "City Plus",
+  "currency": "EUR",
+  "monthlyPrice": 34.99,
+  "status": "ACTIVE"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 34.99 to be above 39.99
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: a6fa451e-7ce5-4bab-8b5b-4236cb440c55
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 51
+Request body:
+{
+  "memberId": "M-1004",
+  "planId": "CITY-PLUS"
+}
+Response : 201 Created (0 ms, 147 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "membershipId": "MS-27708",
+  "memberId": "M-1004",
+  "plan": "City Plus",
+  "currency": "EUR",
+  "monthlyPrice": 34.99,
+  "status": "ACTIVE"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:7:15).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P1] Purchase City Student for M-1004 -> 201, discounted" id="1db1a476-ceda-4ab2-8cb1-f89da27717b9" timestamp="2026-11-22T01:13:14.668Z" tests="9" failures="0" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Status is 201" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Body matches Membership schema" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="memberId echoes the request" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Price is EUR with at most 2 decimals" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Price matches the GET /v1/plans catalogue price" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Membership is ACTIVE after purchase" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+    <testcase name="Discounted plan is cheaper than both standard plans" time="0.000" classname="04MembershipsAc2P1PurchaseCityStudentForM1004201Discounted"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P1] Member profile reflects the new membership" id="66298c1c-1c2f-4b97-9f93-b24fd1b29622" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="2" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="04MembershipsAc2P1MemberProfileReflectsTheNewMembership"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="04MembershipsAc2P1MemberProfileReflectsTheNewMembership"/>
+    <testcase name="Status is 200" time="0.001" classname="04MembershipsAc2P1MemberProfileReflectsTheNewMembership"/>
+    <testcase name="membership is no longer null after a successful purchase" time="0.001" classname="04MembershipsAc2P1MemberProfileReflectsTheNewMembership">
+      <failure type="AssertionFailure" message="expected null to not deeply equal null&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/members/M-1004&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (1 ms, 98 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;id&quot;: &quot;M-1004&quot;,&#xA;  &quot;name&quot;: &quot;Sara Visser&quot;,&#xA;  &quot;email&quot;: &quot;sara@example.com&quot;,&#xA;  &quot;membership&quot;: null&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P1] Member profile reflects the new membership.]]>
+        <![CDATA[Test description: membership is no longer null after a successful purchase.]]>
+        <![CDATA[Error message: expected null to not deeply equal null
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-1004
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 98 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected null to not deeply equal null
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-1004
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 98 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:17).]]>
+      </failure>
+    </testcase>
+    <testcase name="membership status is ACTIVE" time="0.001" classname="04MembershipsAc2P1MemberProfileReflectsTheNewMembership">
+      <failure type="AssertionFailure" message="expected null to deeply equal 'ACTIVE'&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/members/M-1004&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (1 ms, 98 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;id&quot;: &quot;M-1004&quot;,&#xA;  &quot;name&quot;: &quot;Sara Visser&quot;,&#xA;  &quot;email&quot;: &quot;sara@example.com&quot;,&#xA;  &quot;membership&quot;: null&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P1] Member profile reflects the new membership.]]>
+        <![CDATA[Test description: membership status is ACTIVE.]]>
+        <![CDATA[Error message: expected null to deeply equal 'ACTIVE'
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-1004
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 98 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected null to deeply equal 'ACTIVE'
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/members/M-1004
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 8a763446-75ef-4b3d-bba7-0d53aeb45117
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (1 ms, 98 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:3:17).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P1] Unknown planId -> 400 Error body" id="c367af02-ed2a-4a3a-93a7-62e9876c13ca" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="04MembershipsAc2P1UnknownPlanId400ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="04MembershipsAc2P1UnknownPlanId400ErrorBody"/>
+    <testcase name="Status is 400" time="0.001" classname="04MembershipsAc2P1UnknownPlanId400ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="04MembershipsAc2P1UnknownPlanId400ErrorBody"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P2] Missing planId -> 400 Error body" id="0277a530-d5fc-4330-853d-9866df5e2288" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="1" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="04MembershipsAc2P2MissingPlanId400ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="04MembershipsAc2P2MissingPlanId400ErrorBody"/>
+    <testcase name="Status is 400" time="0.001" classname="04MembershipsAc2P2MissingPlanId400ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="04MembershipsAc2P2MissingPlanId400ErrorBody"/>
+    <testcase name="Error message does not leak internals (&quot;undefined&quot;)" time="0.001" classname="04MembershipsAc2P2MissingPlanId400ErrorBody">
+      <failure type="AssertionFailure" message="expected 'Unknown plan undefined' to not include 'undefined'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/memberships&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 11664598-7558-4194-887d-df97baa09203&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 26&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1004&quot;&#xA;}&#xA;Response : 400 Bad Request (1 ms, 88 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;error&quot;: {&#xA;    &quot;code&quot;: &quot;invalid_plan&quot;,&#xA;    &quot;message&quot;: &quot;Unknown plan undefined&quot;&#xA;  }&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P2] Missing planId -> 400 Error body.]]>
+        <![CDATA[Test description: Error message does not leak internals ("undefined").]]>
+        <![CDATA[Error message: expected 'Unknown plan undefined' to not include 'undefined'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 11664598-7558-4194-887d-df97baa09203
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "memberId": "M-1004"
+}
+Response : 400 Bad Request (1 ms, 88 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "invalid_plan",
+    "message": "Unknown plan undefined"
+  }
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 'Unknown plan undefined' to not include 'undefined'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 11664598-7558-4194-887d-df97baa09203
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "memberId": "M-1004"
+}
+Response : 400 Bad Request (1 ms, 88 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "invalid_plan",
+    "message": "Unknown plan undefined"
+  }
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:3:19).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P2] Missing memberId -> 400 Error body" id="5d40f30c-773d-4674-ad41-66723c54b205" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="04MembershipsAc2P2MissingMemberId400ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="04MembershipsAc2P2MissingMemberId400ErrorBody"/>
+    <testcase name="Status is 400 (validation error, not 404)" time="0.000" classname="04MembershipsAc2P2MissingMemberId400ErrorBody">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 404&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/memberships&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 6ca15d7c-3df5-4480-ae40-432f83e277f2&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 26&#xA;Request body:&#xA;{&#xA;  &quot;planId&quot;: &quot;CITY-ONE&quot;&#xA;}&#xA;Response : 404 Not Found (0 ms, 94 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;error&quot;: {&#xA;    &quot;code&quot;: &quot;member_not_found&quot;,&#xA;    &quot;message&quot;: &quot;Unknown member undefined&quot;&#xA;  }&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P2] Missing memberId -> 400 Error body.]]>
+        <![CDATA[Test description: Status is 400 (validation error, not 404).]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 6ca15d7c-3df5-4480-ae40-432f83e277f2
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "planId": "CITY-ONE"
+}
+Response : 404 Not Found (0 ms, 94 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "member_not_found",
+    "message": "Unknown member undefined"
+  }
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 6ca15d7c-3df5-4480-ae40-432f83e277f2
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "planId": "CITY-ONE"
+}
+Response : 404 Not Found (0 ms, 94 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "member_not_found",
+    "message": "Unknown member undefined"
+  }
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:20).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="04MembershipsAc2P2MissingMemberId400ErrorBody"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P1] Unknown member -> 404 Error body" id="255afb55-80fe-49ed-8953-c0db0bce44bc" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="04MembershipsAc2P1UnknownMember404ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="04MembershipsAc2P1UnknownMember404ErrorBody"/>
+    <testcase name="Status is 404" time="0.001" classname="04MembershipsAc2P1UnknownMember404ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="04MembershipsAc2P1UnknownMember404ErrorBody"/>
+  </testsuite>
+  <testsuite name="04 Memberships (AC2) / [P2] Malformed JSON body -> 400 Error body" id="492495f6-cfc3-491d-8aeb-8426c24cc673" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="04MembershipsAc2P2MalformedJsonBody400ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="04MembershipsAc2P2MalformedJsonBody400ErrorBody"/>
+    <testcase name="Status is 400" time="0.000" classname="04MembershipsAc2P2MalformedJsonBody400ErrorBody">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 404&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/memberships&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: eb5b284b-9ccb-41e5-89bd-5960919b9761&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 33&#xA;Request body:&#xA;{&quot;memberId&quot;: &quot;M-1004&quot;, &quot;planId&quot;: &#xA;Response : 404 Not Found (0 ms, 94 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:14 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;error&quot;: {&#xA;    &quot;code&quot;: &quot;member_not_found&quot;,&#xA;    &quot;message&quot;: &quot;Unknown member undefined&quot;&#xA;  }&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 04 Memberships (AC2) / [P2] Malformed JSON body -> 400 Error body.]]>
+        <![CDATA[Test description: Status is 400.]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: eb5b284b-9ccb-41e5-89bd-5960919b9761
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 33
+Request body:
+{"memberId": "M-1004", "planId": 
+Response : 404 Not Found (0 ms, 94 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "member_not_found",
+    "message": "Unknown member undefined"
+  }
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/memberships
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: eb5b284b-9ccb-41e5-89bd-5960919b9761
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 33
+Request body:
+{"memberId": "M-1004", "planId": 
+Response : 404 Not Found (0 ms, 94 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:14 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "member_not_found",
+    "message": "Unknown member undefined"
+  }
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:22).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="04MembershipsAc2P2MalformedJsonBody400ErrorBody"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] ACTIVE member M-1001 books Spinning C-2001 -> 201 CONFIRMED" id="c3a27d52-a62e-425a-a566-b9eb190679dd" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P0ActiveMemberM1001BooksSpinningC2001201Confirmed"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P0ActiveMemberM1001BooksSpinningC2001201Confirmed"/>
+    <testcase name="Status is 201" time="0.001" classname="05BookingsAc4P0ActiveMemberM1001BooksSpinningC2001201Confirmed"/>
+    <testcase name="Body matches Booking schema" time="0.001" classname="05BookingsAc4P0ActiveMemberM1001BooksSpinningC2001201Confirmed"/>
+    <testcase name="Booking echoes member and class" time="0.001" classname="05BookingsAc4P0ActiveMemberM1001BooksSpinningC2001201Confirmed"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] C-2001 spots_available changed by -1 (one confirmed booking)" id="485f18b7-e879-4108-968f-1311fe898e60" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1OneConfirmedBooking"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1OneConfirmedBooking"/>
+    <testcase name="Status is 200" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1OneConfirmedBooking"/>
+    <testcase name="C-2001 spots_available is baseline -1 (one confirmed booking)" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1OneConfirmedBooking"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] FROZEN member M-1002 books C-2001 -> 422" id="09c02d84-0c28-421d-b6ab-ce7c4961125f" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="3" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="05BookingsAc4P0FrozenMemberM1002BooksC2001422"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="05BookingsAc4P0FrozenMemberM1002BooksC2001422"/>
+    <testcase name="Status is 422 (PG rejects FROZEN membership)" time="0.000" classname="05BookingsAc4P0FrozenMemberM1002BooksC2001422">
+      <failure type="AssertionFailure" message="expected response to have status code 422 but got 201&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 54756863-0e14-416f-a622-795098780b4a&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (0 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5002&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] FROZEN member M-1002 books C-2001 -> 422.]]>
+        <![CDATA[Test description: Status is 422 (PG rejects FROZEN membership).]]>
+        <![CDATA[Error message: expected response to have status code 422 but got 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 422 but got 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:25).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="05BookingsAc4P0FrozenMemberM1002BooksC2001422">
+      <failure type="AssertionFailure" message="expected data to satisfy schema but found following errors: &#xA;data should have required property 'error'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 54756863-0e14-416f-a622-795098780b4a&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (0 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5002&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] FROZEN member M-1002 books C-2001 -> 422.]]>
+        <![CDATA[Test description: Body is an Error object {error:{code,message}}.]]>
+        <![CDATA[Error message: expected data to satisfy schema but found following errors: 
+data should have required property 'error'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected data to satisfy schema but found following errors: 
+data should have required property 'error'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:25).]]>
+      </failure>
+    </testcase>
+    <testcase name="No bookingId returned for a rejected booking" time="0.000" classname="05BookingsAc4P0FrozenMemberM1002BooksC2001422">
+      <failure type="AssertionFailure" message="expected { bookingId: 'BK-5002', …(4) } to not have property 'bookingId'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 54756863-0e14-416f-a622-795098780b4a&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (0 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5002&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1002&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] FROZEN member M-1002 books C-2001 -> 422.]]>
+        <![CDATA[Test description: No bookingId returned for a rejected booking.]]>
+        <![CDATA[Error message: expected { bookingId: 'BK-5002', …(4) } to not have property 'bookingId'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { bookingId: 'BK-5002', …(4) } to not have property 'bookingId'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 54756863-0e14-416f-a622-795098780b4a
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1002",
+  "classId": "C-2001"
+}
+Response : 201 Created (0 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5002",
+  "memberId": "M-1002",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:3:25).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] EXPIRED member M-1003 books C-2001 -> 422" id="2d56d6bc-f505-48b5-b485-a40c19d8efae" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="3" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P0ExpiredMemberM1003BooksC2001422"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P0ExpiredMemberM1003BooksC2001422"/>
+    <testcase name="Status is 422 (PG rejects EXPIRED membership)" time="0.001" classname="05BookingsAc4P0ExpiredMemberM1003BooksC2001422">
+      <failure type="AssertionFailure" message="expected response to have status code 422 but got 201&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5003&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] EXPIRED member M-1003 books C-2001 -> 422.]]>
+        <![CDATA[Test description: Status is 422 (PG rejects EXPIRED membership).]]>
+        <![CDATA[Error message: expected response to have status code 422 but got 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 422 but got 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:26).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="05BookingsAc4P0ExpiredMemberM1003BooksC2001422">
+      <failure type="AssertionFailure" message="expected data to satisfy schema but found following errors: &#xA;data should have required property 'error'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5003&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] EXPIRED member M-1003 books C-2001 -> 422.]]>
+        <![CDATA[Test description: Body is an Error object {error:{code,message}}.]]>
+        <![CDATA[Error message: expected data to satisfy schema but found following errors: 
+data should have required property 'error'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected data to satisfy schema but found following errors: 
+data should have required property 'error'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:26).]]>
+      </failure>
+    </testcase>
+    <testcase name="No bookingId returned for a rejected booking" time="0.001" classname="05BookingsAc4P0ExpiredMemberM1003BooksC2001422">
+      <failure type="AssertionFailure" message="expected { bookingId: 'BK-5003', …(4) } to not have property 'bookingId'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 127 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5003&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1003&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P0] EXPIRED member M-1003 books C-2001 -> 422.]]>
+        <![CDATA[Test description: No bookingId returned for a rejected booking.]]>
+        <![CDATA[Error message: expected { bookingId: 'BK-5003', …(4) } to not have property 'bookingId'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected { bookingId: 'BK-5003', …(4) } to not have property 'bookingId'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 74c78c1b-d480-4fc0-b777-22e7f29973ac
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1003",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 127 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5003",
+  "memberId": "M-1003",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:3:26).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] C-2001 spots_available changed by -1 (rejected bookings must not consume spots)" id="ad3dc0f9-3cd9-4df0-a69d-929a77803b95" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1RejectedBookingsMustNotConsumeSpots"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1RejectedBookingsMustNotConsumeSpots"/>
+    <testcase name="Status is 200" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1RejectedBookingsMustNotConsumeSpots"/>
+    <testcase name="C-2001 spots_available is baseline -1 (rejected bookings must not consume spots)" time="0.001" classname="05BookingsAc4P0C2001SpotsAvailableChangedBy1RejectedBookingsMustNotConsumeSpots"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P0] Book full class Yoga C-2002 -> 409 class_full" id="1740ba98-062b-4a62-b7f2-af187a2b8432" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="05BookingsAc4P0BookFullClassYogaC2002409ClassFull"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="05BookingsAc4P0BookFullClassYogaC2002409ClassFull"/>
+    <testcase name="Status is 409" time="0.000" classname="05BookingsAc4P0BookFullClassYogaC2002409ClassFull"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="05BookingsAc4P0BookFullClassYogaC2002409ClassFull"/>
+    <testcase name="error.code is &quot;class_full&quot;" time="0.000" classname="05BookingsAc4P0BookFullClassYogaC2002409ClassFull"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P1] Book HIIT Express C-2004 (full in PG) -> 409 class_full" id="1662483a-3b19-408a-8aed-120b8d949b8c" timestamp="2026-11-22T01:13:14.668Z" tests="5" failures="0" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="05BookingsAc4P1BookHiitExpressC2004FullInPg409ClassFull"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="05BookingsAc4P1BookHiitExpressC2004FullInPg409ClassFull"/>
+    <testcase name="Status is 409" time="0.000" classname="05BookingsAc4P1BookHiitExpressC2004FullInPg409ClassFull"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="05BookingsAc4P1BookHiitExpressC2004FullInPg409ClassFull"/>
+    <testcase name="error.code is &quot;class_full&quot;" time="0.000" classname="05BookingsAc4P1BookHiitExpressC2004FullInPg409ClassFull"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P1] Unknown member -> 404 Error body" id="302a0229-6f58-48f6-ad3c-53df432c25e0" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P1UnknownMember404ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P1UnknownMember404ErrorBody"/>
+    <testcase name="Status is 404" time="0.001" classname="05BookingsAc4P1UnknownMember404ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="05BookingsAc4P1UnknownMember404ErrorBody"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P1] Unknown class -> 404 Error body" id="85c6483a-4e3d-4543-90ae-a31ebbb20095" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="05BookingsAc4P1UnknownClass404ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="05BookingsAc4P1UnknownClass404ErrorBody"/>
+    <testcase name="Status is 404" time="0.001" classname="05BookingsAc4P1UnknownClass404ErrorBody"/>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.001" classname="05BookingsAc4P1UnknownClass404ErrorBody"/>
+  </testsuite>
+  <testsuite name="05 Bookings (AC4) / [P2] Missing classId -> 400 Error body" id="c3cddba3-5a21-4a51-bc1c-44a05b139238" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="05BookingsAc4P2MissingClassId400ErrorBody"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="05BookingsAc4P2MissingClassId400ErrorBody"/>
+    <testcase name="Status is 400 (validation error, not 404)" time="0.000" classname="05BookingsAc4P2MissingClassId400ErrorBody">
+      <failure type="AssertionFailure" message="expected response to have status code 400 but got 404&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 68ce79e3-550c-4640-a140-af691a92278f&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 26&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;&#xA;}&#xA;Response : 404 Not Found (0 ms, 92 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;error&quot;: {&#xA;    &quot;code&quot;: &quot;class_not_found&quot;,&#xA;    &quot;message&quot;: &quot;Unknown class undefined&quot;&#xA;  }&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 05 Bookings (AC4) / [P2] Missing classId -> 400 Error body.]]>
+        <![CDATA[Test description: Status is 400 (validation error, not 404).]]>
+        <![CDATA[Error message: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 68ce79e3-550c-4640-a140-af691a92278f
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "memberId": "M-1001"
+}
+Response : 404 Not Found (0 ms, 92 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "class_not_found",
+    "message": "Unknown class undefined"
+  }
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected response to have status code 400 but got 404
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 68ce79e3-550c-4640-a140-af691a92278f
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 26
+Request body:
+{
+  "memberId": "M-1001"
+}
+Response : 404 Not Found (0 ms, 92 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "error": {
+    "code": "class_not_found",
+    "message": "Unknown class undefined"
+  }
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:32).]]>
+      </failure>
+    </testcase>
+    <testcase name="Body is an Error object {error:{code,message}}" time="0.000" classname="05BookingsAc4P2MissingClassId400ErrorBody"/>
+  </testsuite>
+  <testsuite name="06 Idempotency (AC5) / [P0] First booking with Idempotency-Key: M-1001 -> BodyPump C-2003" id="e450b01f-7a1c-43dd-83a7-e3d0732e8851" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="0" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="06IdempotencyAc5P0FirstBookingWithIdempotencyKeyM1001BodyPumpC2003"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="06IdempotencyAc5P0FirstBookingWithIdempotencyKeyM1001BodyPumpC2003"/>
+    <testcase name="Status is 201" time="0.000" classname="06IdempotencyAc5P0FirstBookingWithIdempotencyKeyM1001BodyPumpC2003"/>
+    <testcase name="Body matches Booking schema" time="0.000" classname="06IdempotencyAc5P0FirstBookingWithIdempotencyKeyM1001BodyPumpC2003"/>
+  </testsuite>
+  <testsuite name="06 Idempotency (AC5) / [P0] Retry same request + same Idempotency-Key -> original booking returned" id="b237c1c0-f233-45c3-bbfe-89f24ec4585c" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="06IdempotencyAc5P0RetrySameRequestSameIdempotencyKeyOriginalBookingReturned"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="06IdempotencyAc5P0RetrySameRequestSameIdempotencyKeyOriginalBookingReturned"/>
+    <testcase name="Status is 200 or 201 (replay of the original)" time="0.000" classname="06IdempotencyAc5P0RetrySameRequestSameIdempotencyKeyOriginalBookingReturned"/>
+    <testcase name="Same bookingId as the original request (no duplicate created)" time="0.000" classname="06IdempotencyAc5P0RetrySameRequestSameIdempotencyKeyOriginalBookingReturned">
+      <failure type="AssertionFailure" message="expected 'BK-5005' to deeply equal 'BK-5004'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 34f12d64-07d3-4b1e-8726-46b721e204b1&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2003&quot;&#xA;}&#xA;Response : 201 Created (0 ms, 192 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5005&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2003&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;BodyPump&quot;,&#xA;  &quot;idempotencyKey&quot;: &quot;idem-69940328-84a9-4afe-940c-93199d1f5e61&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 06 Idempotency (AC5) / [P0] Retry same request + same Idempotency-Key -> original booking returned.]]>
+        <![CDATA[Test description: Same bookingId as the original request (no duplicate created).]]>
+        <![CDATA[Error message: expected 'BK-5005' to deeply equal 'BK-5004'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 34f12d64-07d3-4b1e-8726-46b721e204b1
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2003"
+}
+Response : 201 Created (0 ms, 192 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5005",
+  "memberId": "M-1001",
+  "classId": "C-2003",
+  "status": "CONFIRMED",
+  "className": "BodyPump",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 'BK-5005' to deeply equal 'BK-5004'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 34f12d64-07d3-4b1e-8726-46b721e204b1
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2003"
+}
+Response : 201 Created (0 ms, 192 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5005",
+  "memberId": "M-1001",
+  "classId": "C-2003",
+  "status": "CONFIRMED",
+  "className": "BodyPump",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:34).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="06 Idempotency (AC5) / [P0] C-2003 spots_available changed by -1 (one booking despite the retry)" id="a9fb6f2a-333d-4d7e-93de-ac303ec47530" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="1" errors="0" time="0.000">
+    <testcase name="[common] Responds within 1000 ms" time="0.000" classname="06IdempotencyAc5P0C2003SpotsAvailableChangedBy1OneBookingDespiteTheRetry"/>
+    <testcase name="[common] Content-Type is application/json" time="0.000" classname="06IdempotencyAc5P0C2003SpotsAvailableChangedBy1OneBookingDespiteTheRetry"/>
+    <testcase name="Status is 200" time="0.000" classname="06IdempotencyAc5P0C2003SpotsAvailableChangedBy1OneBookingDespiteTheRetry"/>
+    <testcase name="C-2003 spots_available is baseline -1 (one booking despite the retry)" time="0.000" classname="06IdempotencyAc5P0C2003SpotsAvailableChangedBy1OneBookingDespiteTheRetry">
+      <failure type="AssertionFailure" message="expected 13 to deeply equal 14&#xA;&#xA;──────── API details ────────&#xA;Request : GET http://localhost:3000/v1/classes&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: a013f8e4-543f-48d3-ac32-6681c74c18fd&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;Request body:&#xA;(empty)&#xA;Response : 200 OK (0 ms, 814 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;data&quot;: [&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2001&quot;,&#xA;      &quot;name&quot;: &quot;Spinning&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-21T18:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 20,&#xA;      &quot;spots_available&quot;: 14&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2002&quot;,&#xA;      &quot;name&quot;: &quot;Yoga&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-22T09:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 15,&#xA;      &quot;spots_available&quot;: 0&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2003&quot;,&#xA;      &quot;name&quot;: &quot;BodyPump&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-23T19:30:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 25,&#xA;      &quot;spots_available&quot;: 13&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2004&quot;,&#xA;      &quot;name&quot;: &quot;HIIT Express&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-06-24T07:00:00+02:00&quot;,&#xA;      &quot;capacity&quot;: 20,&#xA;      &quot;spots_available&quot;: 4&#xA;    },&#xA;    {&#xA;      &quot;id&quot;: &quot;C-2005&quot;,&#xA;      &quot;name&quot;: &quot;Pilates&quot;,&#xA;      &quot;start_time&quot;: &quot;2027-11-15T18:00:00+01:00&quot;,&#xA;      &quot;capacity&quot;: 12,&#xA;      &quot;spots_available&quot;: 9&#xA;    }&#xA;  ]&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 06 Idempotency (AC5) / [P0] C-2003 spots_available changed by -1 (one booking despite the retry).]]>
+        <![CDATA[Test description: C-2003 spots_available is baseline -1 (one booking despite the retry).]]>
+        <![CDATA[Error message: expected 13 to deeply equal 14
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/classes
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: a013f8e4-543f-48d3-ac32-6681c74c18fd
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 814 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "C-2001",
+      "name": "Spinning",
+      "start_time": "2027-06-21T18:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 14
+    },
+    {
+      "id": "C-2002",
+      "name": "Yoga",
+      "start_time": "2027-06-22T09:00:00+02:00",
+      "capacity": 15,
+      "spots_available": 0
+    },
+    {
+      "id": "C-2003",
+      "name": "BodyPump",
+      "start_time": "2027-06-23T19:30:00+02:00",
+      "capacity": 25,
+      "spots_available": 13
+    },
+    {
+      "id": "C-2004",
+      "name": "HIIT Express",
+      "start_time": "2027-06-24T07:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 4
+    },
+    {
+      "id": "C-2005",
+      "name": "Pilates",
+      "start_time": "2027-11-15T18:00:00+01:00",
+      "capacity": 12,
+      "spots_available": 9
+    }
+  ]
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 13 to deeply equal 14
+
+──────── API details ────────
+Request : GET http://localhost:3000/v1/classes
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: a013f8e4-543f-48d3-ac32-6681c74c18fd
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+Request body:
+(empty)
+Response : 200 OK (0 ms, 814 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "data": [
+    {
+      "id": "C-2001",
+      "name": "Spinning",
+      "start_time": "2027-06-21T18:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 14
+    },
+    {
+      "id": "C-2002",
+      "name": "Yoga",
+      "start_time": "2027-06-22T09:00:00+02:00",
+      "capacity": 15,
+      "spots_available": 0
+    },
+    {
+      "id": "C-2003",
+      "name": "BodyPump",
+      "start_time": "2027-06-23T19:30:00+02:00",
+      "capacity": 25,
+      "spots_available": 13
+    },
+    {
+      "id": "C-2004",
+      "name": "HIIT Express",
+      "start_time": "2027-06-24T07:00:00+02:00",
+      "capacity": 20,
+      "spots_available": 4
+    },
+    {
+      "id": "C-2005",
+      "name": "Pilates",
+      "start_time": "2027-11-15T18:00:00+01:00",
+      "capacity": 12,
+      "spots_available": 9
+    }
+  ]
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:35).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="06 Idempotency (AC5) / [P2] Same Idempotency-Key with a different body -> rejected, no new booking" id="641f206c-16e5-4fe6-bb92-47bdd1400e7a" timestamp="2026-11-22T01:13:14.668Z" tests="4" failures="2" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="06IdempotencyAc5P2SameIdempotencyKeyWithADifferentBodyRejectedNoNewBooking"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="06IdempotencyAc5P2SameIdempotencyKeyWithADifferentBodyRejectedNoNewBooking"/>
+    <testcase name="Key reuse with a different payload is rejected (409/422)" time="0.001" classname="06IdempotencyAc5P2SameIdempotencyKeyWithADifferentBodyRejectedNoNewBooking">
+      <failure type="AssertionFailure" message="expected 201 to be one of [ 409, 422 ]&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2005&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 191 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5006&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2005&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Pilates&quot;,&#xA;  &quot;idempotencyKey&quot;: &quot;idem-69940328-84a9-4afe-940c-93199d1f5e61&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 06 Idempotency (AC5) / [P2] Same Idempotency-Key with a different body -> rejected, no new booking.]]>
+        <![CDATA[Test description: Key reuse with a different payload is rejected (409/422).]]>
+        <![CDATA[Error message: expected 201 to be one of [ 409, 422 ]
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2005"
+}
+Response : 201 Created (1 ms, 191 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5006",
+  "memberId": "M-1001",
+  "classId": "C-2005",
+  "status": "CONFIRMED",
+  "className": "Pilates",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 201 to be one of [ 409, 422 ]
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2005"
+}
+Response : 201 Created (1 ms, 191 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5006",
+  "memberId": "M-1001",
+  "classId": "C-2005",
+  "status": "CONFIRMED",
+  "className": "Pilates",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:36).]]>
+      </failure>
+    </testcase>
+    <testcase name="No new bookingId issued under a reused key" time="0.001" classname="06IdempotencyAc5P2SameIdempotencyKeyWithADifferentBodyRejectedNoNewBooking">
+      <failure type="AssertionFailure" message="expected 'BK-5006' to deeply equal 'BK-5004'&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2005&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 191 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5006&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2005&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Pilates&quot;,&#xA;  &quot;idempotencyKey&quot;: &quot;idem-69940328-84a9-4afe-940c-93199d1f5e61&quot;&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 06 Idempotency (AC5) / [P2] Same Idempotency-Key with a different body -> rejected, no new booking.]]>
+        <![CDATA[Test description: No new bookingId issued under a reused key.]]>
+        <![CDATA[Error message: expected 'BK-5006' to deeply equal 'BK-5004'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2005"
+}
+Response : 201 Created (1 ms, 191 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5006",
+  "memberId": "M-1001",
+  "classId": "C-2005",
+  "status": "CONFIRMED",
+  "className": "Pilates",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: expected 'BK-5006' to deeply equal 'BK-5004'
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  Idempotency-Key: idem-69940328-84a9-4afe-940c-93199d1f5e61
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 2c110f93-797f-42d1-8ff0-9e776a8ff3c6
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2005"
+}
+Response : 201 Created (1 ms, 191 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5006",
+  "memberId": "M-1001",
+  "classId": "C-2005",
+  "status": "CONFIRMED",
+  "className": "Pilates",
+  "idempotencyKey": "idem-69940328-84a9-4afe-940c-93199d1f5e61"
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:2:36).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="06 Idempotency (AC5) / [P1] Retry without Idempotency-Key (M-1001 re-books C-2001) -> no duplicate" id="2d9d25f0-8cdb-4a21-9573-24561fd75a7f" timestamp="2026-11-22T01:13:14.668Z" tests="3" failures="1" errors="0" time="0.001">
+    <testcase name="[common] Responds within 1000 ms" time="0.001" classname="06IdempotencyAc5P1RetryWithoutIdempotencyKeyM1001ReBooksC2001NoDuplicate"/>
+    <testcase name="[common] Content-Type is application/json" time="0.001" classname="06IdempotencyAc5P1RetryWithoutIdempotencyKeyM1001ReBooksC2001NoDuplicate"/>
+    <testcase name="Duplicate booking of the same member+class is not CONFIRMED again" time="0.001" classname="06IdempotencyAc5P1RetryWithoutIdempotencyKeyM1001ReBooksC2001NoDuplicate">
+      <failure type="AssertionFailure" message="a second 201 means a duplicate booking: expected 201 to not deeply equal 201&#xA;&#xA;──────── API details ────────&#xA;Request : POST http://localhost:3000/v1/bookings&#xA;Query params : (none)&#xA;Path params  : (none)&#xA;Request headers:&#xA;  X-Api-Key: ***&#xA;  Content-Type: application/json&#xA;  User-Agent: PostmanRuntime/7.39.1&#xA;  Accept: */*&#xA;  Cache-Control: no-cache&#xA;  Postman-Token: 0f93a81a-5444-4dbb-9f3c-76e49e631486&#xA;  Host: localhost:3000&#xA;  Accept-Encoding: gzip, deflate, br&#xA;  Connection: keep-alive&#xA;  Content-Length: 49&#xA;Request body:&#xA;{&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;&#xA;}&#xA;Response : 201 Created (1 ms, 153 B)&#xA;Response headers:&#xA;  Content-Type: application/json&#xA;  Date: Sun, 22 Nov 2026 01:13:15 GMT&#xA;  Connection: keep-alive&#xA;  Keep-Alive: timeout=5&#xA;  Transfer-Encoding: chunked&#xA;Response body:&#xA;{&#xA;  &quot;bookingId&quot;: &quot;BK-5007&quot;,&#xA;  &quot;memberId&quot;: &quot;M-1001&quot;,&#xA;  &quot;classId&quot;: &quot;C-2001&quot;,&#xA;  &quot;status&quot;: &quot;CONFIRMED&quot;,&#xA;  &quot;className&quot;: &quot;Spinning&quot;,&#xA;  &quot;idempotencyKey&quot;: null&#xA;}&#xA;─────────────────────────────">
+        <![CDATA[Failed 1 times.]]>
+        <![CDATA[Collection JSON ID: 6e40b844-e3da-4b4a-8007-14a508532a19.]]>
+        <![CDATA[Collection name: SportCity Electrolyte API tests.]]>
+        <![CDATA[Request name: 06 Idempotency (AC5) / [P1] Retry without Idempotency-Key (M-1001 re-books C-2001) -> no duplicate.]]>
+        <![CDATA[Test description: Duplicate booking of the same member+class is not CONFIRMED again.]]>
+        <![CDATA[Error message: a second 201 means a duplicate booking: expected 201 to not deeply equal 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 0f93a81a-5444-4dbb-9f3c-76e49e631486
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 153 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5007",
+  "memberId": "M-1001",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning",
+  "idempotencyKey": null
+}
+─────────────────────────────.]]>
+        <![CDATA[Stacktrace: AssertionError: a second 201 means a duplicate booking: expected 201 to not deeply equal 201
+
+──────── API details ────────
+Request : POST http://localhost:3000/v1/bookings
+Query params : (none)
+Path params  : (none)
+Request headers:
+  X-Api-Key: ***
+  Content-Type: application/json
+  User-Agent: PostmanRuntime/7.39.1
+  Accept: */*
+  Cache-Control: no-cache
+  Postman-Token: 0f93a81a-5444-4dbb-9f3c-76e49e631486
+  Host: localhost:3000
+  Accept-Encoding: gzip, deflate, br
+  Connection: keep-alive
+  Content-Length: 49
+Request body:
+{
+  "memberId": "M-1001",
+  "classId": "C-2001"
+}
+Response : 201 Created (1 ms, 153 B)
+Response headers:
+  Content-Type: application/json
+  Date: Sun, 22 Nov 2026 01:13:15 GMT
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Transfer-Encoding: chunked
+Response body:
+{
+  "bookingId": "BK-5007",
+  "memberId": "M-1001",
+  "classId": "C-2001",
+  "status": "CONFIRMED",
+  "className": "Spinning",
+  "idempotencyKey": null
+}
+─────────────────────────────
+   at Object.eval sandbox-script.js:1:37).]]>
+      </failure>
+    </testcase>
+  </testsuite>
+</testsuites>

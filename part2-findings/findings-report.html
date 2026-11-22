@@ -1,0 +1,183 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Electrolyte QA findings</title><style>
+@page { size: A4; margin: 13mm 13mm 12mm; }
+* { box-sizing: border-box; }
+body { font: 9.4pt/1.38 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1c2321; margin: 0; }
+h1 { font-size: 15pt; margin: 0 0 3pt; color: #0b4f45; }
+h2 { font-size: 11pt; margin: 9pt 0 3pt; color: #0b4f45; border-bottom: 1px solid #cfdcd8; padding-bottom: 1pt; }
+p { margin: 3pt 0; }
+ul, ol { margin: 3pt 0; padding-left: 15pt; }
+li { margin: 1.5pt 0; }
+table { border-collapse: collapse; width: 100%; margin: 4pt 0; font-size: 8.4pt; }
+th, td { border: 1px solid #d5dfdc; padding: 2.5pt 4pt; vertical-align: top; text-align: left; }
+th { background: #eaf2f0; }
+tr { break-inside: avoid; }
+td:first-child { white-space: nowrap; }
+code { font: 8pt ui-monospace, Menlo, monospace; background: #f1f4f3; padding: 0 2px; border-radius: 2px; }
+.page-break { break-after: page; }
+.shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; }
+figure { margin: 0; break-inside: avoid; }
+figure img { width: 100%; border: 1px solid #d5dfdc; }
+figure.narrow img { width: 60%; }
+figcaption { font-size: 8pt; color: #4d5b57; }
+</style></head><body><h1>Electrolyte release: QA findings</h1>
+<p><strong>Scope:</strong> Electrolyte API v2.0.0, tested as a black box (local mock, fresh seed per run) against <code>openapi.yaml</code> and acceptance criteria AC1–AC5. Perfect Gym (PG) screens are the source of truth, and DataDog shows what Electrolyte did. <strong>Date:</strong> 22 Nov 2026.</p>
+<h2>Summary</h2>
+<p>The end-to-end flow (sign up, activate a membership, book a class) is <strong>not release-ready</strong>. Of the six tasks, only T1 mostly passes. The two most serious problems are silent: Electrolyte returns <strong><code>201 CONFIRMED</code> for bookings that PG has rejected</strong>, so frozen and expired members are told they have a place in a class when none exists. Electrolyte also <strong>creates a duplicate booking every time a request is retried</strong>. A PG configuration error <strong>prices City Plus below City One</strong>, which breaks the tier rule on every quote and every sale. The class list shows <strong>availability that PG no longer has</strong>, and the <strong>app shows the new Spinning class 2 hours early</strong>. The automated suite (37 requests, 213 assertions) reproduces all of this, with 22 assertion failures, all mapped to the findings below.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Result</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1 Member profile</td>
+<td>⚠️ Partial</td>
+<td>Statuses correct for all seeded members. Unknown member returns 200 <code>null</code>, not 404 (F7)</td>
+</tr>
+<tr>
+<td>T2 HIIT Express spots</td>
+<td>❌ Fail</td>
+<td>Class list shows 4 spots; PG is full at 20/20. Booking 409 is correct (F4)</td>
+</tr>
+<tr>
+<td>T3 Plan prices</td>
+<td>❌ Fail</td>
+<td>City Plus €34.99 &lt; City One €39.99 (F3)</td>
+</tr>
+<tr>
+<td>T4 Spinning bookings</td>
+<td>❌ Fail</td>
+<td>FROZEN and EXPIRED members get 201 CONFIRMED (F1)</td>
+</tr>
+<tr>
+<td>T5 Retry BodyPump</td>
+<td>❌ Fail</td>
+<td>Same Idempotency-Key creates a second booking and takes a second spot (F2)</td>
+</tr>
+<tr>
+<td>T6 Spinning on mobile</td>
+<td>❌ Fail</td>
+<td>App shows 16:00; the API correctly returns 18:00+02:00 (F5)</td>
+</tr>
+</tbody>
+</table>
+<h2>Findings</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Finding: observed vs expected</th>
+<th>Sev.</th>
+<th>Layer</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>F1</strong></td>
+<td>Booking by a FROZEN (M-1002) or EXPIRED (M-1003) member returns <strong>201 CONFIRMED</strong> with a bookingId. PG returned <strong>422</strong> <code>membership_frozen</code>/<code>_expired</code>. Expected 422 (AC4). PG holds no booking and the spot count does not drop, so the confirmation is false.</td>
+<td>Critical</td>
+<td>Electrolyte</td>
+<td>T4 trace <code>a3f91c20e8b74d12</code>; <code>T4-spinning-bookings.txt</code>; PG member records</td>
+</tr>
+<tr>
+<td><strong>F2</strong></td>
+<td>Retrying <code>POST /v1/bookings</code> with the <strong>same Idempotency-Key</strong> returns a <strong>new bookingId</strong> (BK-5004, then BK-5005), and BodyPump spots go 15 → 13. Expected the original booking and one spot used (AC5).</td>
+<td>Critical</td>
+<td>Electrolyte</td>
+<td><code>T5-idempotency.txt</code></td>
+</tr>
+<tr>
+<td><strong>F3</strong></td>
+<td>City Plus <strong>€34.99</strong> is priced below City One <strong>€39.99</strong>, both in <code>GET /v1/plans</code> and at purchase. Expected Plus &gt; One (AC2). The values match PG configuration exactly, and Electrolyte passes them through as designed.</td>
+<td>Critical</td>
+<td>Perfect Gym (config)</td>
+<td><code>T3-pricing.txt</code>; PG pricing screen</td>
+</tr>
+<tr>
+<td><strong>F4</strong></td>
+<td>HIIT Express (C-2004) shows <code>spots_available: 4</code>. PG has 20/20 booked (full since 08:15). Expected 0 (AC3). Booking correctly returns 409, so members see free spots they can never book: 37 errors from 5 members in 24 h.</td>
+<td>High</td>
+<td>Electrolyte (availability read path)</td>
+<td><code>T2-hiit-availability.txt</code>; DataDog logs; PG schedule; app screen</td>
+</tr>
+<tr>
+<td><strong>F5</strong></td>
+<td>App shows Spinning (C-2001) at <strong>16:00–16:45</strong>. API returns <code>2027-06-21T18:00:00+02:00</code>, which matches PG's 18:00. Other classes display correctly, so the fault is in how the client handles this class; 16:00 is the UTC time.</td>
+<td>High</td>
+<td>Client (mobile)</td>
+<td><code>T6-spinning-time.txt</code>; app screen</td>
+</tr>
+<tr>
+<td><strong>F6</strong></td>
+<td>After <code>POST /v1/memberships</code> returns 201 <code>ACTIVE</code> for M-1004, <code>GET /v1/members/M-1004</code> still shows <code>membership: null</code>. A newly activated member is not visible as active, which breaks the sign-up → book flow.</td>
+<td>High</td>
+<td>Electrolyte or PG (confirm write to PG)</td>
+<td><code>T3-pricing.txt</code> (last call)</td>
+</tr>
+<tr>
+<td><strong>F7</strong></td>
+<td><code>GET /v1/members/M-9999</code> returns <strong>200</strong> with body <code>null</code>. Expected <strong>404</strong> with an Error body (AC1).</td>
+<td>Medium</td>
+<td>Electrolyte</td>
+<td><code>T1-members.txt</code></td>
+</tr>
+<tr>
+<td><strong>F8</strong></td>
+<td>Without an Idempotency-Key, the same member can book the same class twice (two 201s). Repeat purchases for one member are also all accepted.</td>
+<td>Medium</td>
+<td>Electrolyte (product decision)</td>
+<td>Newman run, folder 06</td>
+</tr>
+<tr>
+<td><strong>F9</strong></td>
+<td>Validation errors are reported as the wrong kind: a missing <code>memberId</code>/<code>classId</code> or malformed JSON returns <strong>404 not_found</strong> instead of 400, and one message reads "Unknown plan undefined".</td>
+<td>Low</td>
+<td>Electrolyte</td>
+<td>Newman run, folders 04–05</td>
+</tr>
+</tbody>
+</table>
+<h2>Release recommendation: <strong>NO-GO</strong></h2>
+<ol>
+<li>Electrolyte confirms bookings that PG rejected (F1) and duplicates bookings on retry (F2). Both corrupt what members are told about their bookings.</li>
+<li>Every City Plus quote and sale is €5/month under the tier rule (F3), which has revenue and pricing-integrity impact.</li>
+<li>The headline flow fails: a newly activated member does not appear as active (F6).</li>
+<li>Re-test after fixes with the attached Newman collection and pytest suite; they cover every finding.</li>
+</ol>
+<p><strong>If only three can be fixed:</strong></p>
+<ul>
+<li><strong>F1, false booking confirmations.</strong> Members turn up for classes they are not booked into, and frozen or expired members get around a business rule. The fix is small and local (pass PG's 422 through to the caller), and without it Electrolyte's booking responses cannot be trusted.</li>
+<li><strong>F3, inverted pricing.</strong> It affects money on every new City Plus sale and the price quoted to prospects. It is a PG configuration change, so it can be done without an Electrolyte deploy.</li>
+<li><strong>F2, idempotency.</strong> Mobile retries are routine, so duplicate bookings will happen in production as soon as the network is flaky, using up real capacity and double-booking members.</li>
+</ul>
+<p><em>Why not the others:</em> F6 needs triage first to find out whether PG is actually written. If it is not, it should replace F2, with the app debouncing and not retrying bookings as a stop-gap. F4 fails safe: members get a clear 409 and nothing is mis-recorded. F5 is a client fix that ships separately from Electrolyte.</p>
+<div class="page-break"></div>
+
+<h1>Appendix A: reproduction steps</h1>
+<p>All commands use <code>-H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'</code> against a freshly restarted mock. Full requests and responses are in <code>evidence/Tn-*.txt</code>, and <code>./capture-evidence.sh --restart</code> regenerates them.</p>
+<p><strong>F1 (T4).</strong> <code>POST /v1/bookings {"memberId":"M-1002","classId":"C-2001"}</code> returns <code>201 {"bookingId":"BK-5002","status":"CONFIRMED"}</code>. Repeat with <code>M-1003</code>: also 201. <code>GET /v1/classes</code> then shows Spinning <code>spots_available</code> dropping 15 → 14 only for the ACTIVE member M-1001, not for M-1002 or M-1003. The DataDog trace shows the <code>pg.booking.create</code> span returning <code>422 membership_frozen</code> while the root span returns <code>201</code>. The PG member record shows "No upcoming bookings on file" for M-1002 and M-1003. <em>Likely cause:</em> the PG client error is logged but not propagated, and the success response is built regardless.</p>
+<p><strong>F2 (T5).</strong> Send <code>POST /v1/bookings {"memberId":"M-1001","classId":"C-2003"}</code> twice with the same <code>Idempotency-Key</code>. The responses are BK-5004 then BK-5005, both 201, and <code>spots_available</code> for C-2003 goes 15 → 13. The key is echoed in the response but never used to look up an existing booking.</p>
+<p><strong>F3 (T3).</strong> <code>GET /v1/plans</code> returns CITY-ONE 39.99, CITY-PLUS 34.99, CITY-STUDENT 29.99 (EUR, 2 decimals). <code>POST /v1/memberships</code> returns the same prices. The PG "Membership pricing" screen shows €39,99 / €34,99 / €29,99, so the values look swapped in PG. <em>Suggested Electrolyte guard:</em> a contract test or alert on the tier rule.</p>
+<p><strong>F4 (T2).</strong> <code>GET /v1/classes</code> returns C-2004 <code>capacity: 20, spots_available: 4</code>. <code>POST /v1/bookings {"memberId":"M-1001","classId":"C-2004"}</code> returns <code>409 class_full</code>, matching PG (20/20, FULL since 08:15). The app shows "4 spots left" because it reflects the API value faithfully. DataDog shows 37 <code>class_full</code> events from 5 members (retries) and none for other classes. <em>Likely cause:</em> the availability read path serves a cached or stale capacity snapshot, while the booking path checks PG live.</p>
+<p><strong>F5 (T6).</strong> <code>GET /v1/classes</code> returns C-2001 <code>start_time: "2027-06-21T18:00:00+02:00"</code> (correct per PG, Europe/Amsterdam summer time). The app renders 16:00–16:45, which is 18:00+02:00 shown as UTC. Yoga, BodyPump and HIIT Express render at their correct local times. <em>Also note:</em> the API has no end time or duration, so the app's "–16:45" cannot be verified against the contract.</p>
+<p><strong>F6.</strong> <code>POST /v1/memberships {"memberId":"M-1004","planId":"CITY-ONE"}</code> returns <code>201 status ACTIVE</code>, but <code>GET /v1/members/M-1004</code> still returns <code>membership: null</code>.</p>
+<p><strong>F7 (T1).</strong> <code>GET /v1/members/M-9999</code> returns <code>200</code> with body <code>null</code>. M-1001 ACTIVE, M-1002 FROZEN, M-1003 EXPIRED and M-1004 <code>membership: null</code> all match PG.</p>
+<h1>Appendix B: supporting screens</h1>
+<div class="shots">
+<figure><img src="evidence/screenshots/T4-datadog-trace-booking.png"><figcaption>T4: DataDog trace. PG 422 <code>membership_frozen</code>, Electrolyte 201.</figcaption></figure>
+<figure><img src="evidence/screenshots/T3-perfectgym-membership-pricing.png"><figcaption>T3: PG pricing. City Plus is configured below City One.</figcaption></figure>
+<figure><img src="evidence/screenshots/T2-perfectgym-class-capacity.png"><figcaption>T2: PG schedule. HIIT Express full at 20/20.</figcaption></figure>
+<figure><img src="evidence/screenshots/T2-datadog-class-errors.png"><figcaption>T2: DataDog. 37 <code>class_full</code> rejections for C-2004.</figcaption></figure>
+<figure class="narrow"><img src="evidence/screenshots/T2-T6-app-classes-screen.png"><figcaption>T2/T6: App. HIIT shows "4 spots left"; Spinning shown at 16:00.</figcaption></figure>
+<figure><img src="evidence/screenshots/T4-perfectgym-member-records.png"><figcaption>T1/T4: PG member records. No bookings on file for M-1002 and M-1003.</figcaption></figure>
+</div>
+
+<h1>Appendix C: test assets</h1>
+<ul>
+<li><strong>Part 1:</strong> <code>part1-test-design/Electrolyte.postman_collection.json</code>. Run it with <code>run-newman.sh --restart</code>; the HTML report goes to <code>reports/newman-report.html</code>, and every failed assertion carries the full request and response.</li>
+<li><strong>Part 3:</strong> the pytest suite with an Allure report (see <code>part3-automation/README.md</code>).</li>
+</ul></body></html>

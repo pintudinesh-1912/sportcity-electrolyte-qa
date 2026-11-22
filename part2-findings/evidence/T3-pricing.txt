@@ -1,0 +1,108 @@
+$ curl -X GET http://localhost:3000/v1/plans -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "data": [
+    {
+      "id": "CITY-ONE",
+      "name": "City One",
+      "coverage": "Single home club",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 39.99
+    },
+    {
+      "id": "CITY-PLUS",
+      "name": "City Plus",
+      "coverage": "All SportCity clubs",
+      "category": "standard",
+      "currency": "EUR",
+      "monthlyPrice": 34.99
+    },
+    {
+      "id": "CITY-STUDENT",
+      "name": "City Student",
+      "coverage": "Single home club (students)",
+      "category": "discounted",
+      "currency": "EUR",
+      "monthlyPrice": 29.99
+    }
+  ]
+}
+
+$ curl -X POST http://localhost:3000/v1/memberships -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1004","planId":"CITY-ONE"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "membershipId": "MS-65046",
+  "memberId": "M-1004",
+  "plan": "City One",
+  "currency": "EUR",
+  "monthlyPrice": 39.99,
+  "status": "ACTIVE"
+}
+
+$ curl -X POST http://localhost:3000/v1/memberships -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1004","planId":"CITY-PLUS"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "membershipId": "MS-61117",
+  "memberId": "M-1004",
+  "plan": "City Plus",
+  "currency": "EUR",
+  "monthlyPrice": 34.99,
+  "status": "ACTIVE"
+}
+
+$ curl -X POST http://localhost:3000/v1/memberships -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json' -d '{"memberId":"M-1004","planId":"CITY-STUDENT"}'
+
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "membershipId": "MS-19952",
+  "memberId": "M-1004",
+  "plan": "City Student",
+  "currency": "EUR",
+  "monthlyPrice": 29.99,
+  "status": "ACTIVE"
+}
+
+$ curl -X GET http://localhost:3000/v1/members/M-1004 -H 'X-Api-Key: sportcity-test-key' -H 'Content-Type: application/json'
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sun, 22 Nov 2026 01:13:29 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{
+  "id": "M-1004",
+  "name": "Sara Visser",
+  "email": "sara@example.com",
+  "membership": null
+}
+

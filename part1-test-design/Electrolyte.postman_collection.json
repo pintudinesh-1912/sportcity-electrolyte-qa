@@ -1,0 +1,3261 @@
+{
+  "info": {
+    "name": "SportCity Electrolyte API tests",
+    "description": "Electrolyte API test suite for the SportCity QA assessment (Part 1).\n\n**Run order matters.** Folders run top to bottom against a **freshly started** mock\n(restart it to reset seeded data): read-only checks first, then purchases, bookings\nand idempotency. Later requests read baselines saved by earlier ones\n(plan prices, spots per class).\n\n**Priority legend**\n- **P0** money, booking eligibility, or data the member sees directly. Release blocker if failing.\n- **P1** contract, validation and consistency. Should fix before release.\n- **P2** robustness and error-contract polish. Fix when convenient.\n\n**Source of truth.** Expected values for members, schedules and capacity come from\nthe Perfect Gym screens in the kit (PG is the CRM of record).\n\nAssertions encode the *intended* behaviour from `openapi.yaml` and the acceptance\ncriteria, so failing tests are findings, not test bugs.\n\n**Evidence on failure.** Every assertion runs through a `check()` wrapper. When one\nfails, the full API exchange is appended to its failure message: method + URL, query and\npath params, request headers (API key masked), request body, status, timing, response\nheaders and response body (truncated at 4000 chars). This shows in the Newman CLI, the\nhtmlextra *Failures* tab and the JUnit XML. Passing requests keep the standard htmlextra\nrequest/response view.\n\nRun with Newman: `./part1-test-design/run-newman.sh`\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "{",
+          "// ---- API details on failure (generated) ----",
+          "const __MAX_BODY = 4000;",
+          "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+          "const __pretty = (txt) => {",
+          "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+          "  let out = String(txt);",
+          "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+          "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+          "};",
+          "const __apiDetails = () => {",
+          "  const r = pm.request;",
+          "  const url = pm.variables.replaceIn(r.url.toString());",
+          "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+          "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+          "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+          "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+          "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+          "  return [",
+          "    \"\",",
+          "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+          "    `Request : ${r.method} ${url}`,",
+          "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+          "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+          "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+          "    \"Request body:\", __pretty(reqBody),",
+          "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+          "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+          "    \"Response body:\", __pretty(pm.response.text()),",
+          "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+          "  ].join(\"\\n\");",
+          "};",
+          "const check = (name, fn) => pm.test(name, function () {",
+          "  try { fn(); }",
+          "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+          "});",
+          "// ---- end prelude ----",
+          "// Runs after every request.",
+          "check(\"[common] Responds within 1000 ms\", () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+          "check(\"[common] Content-Type is application/json\", () => pm.expect(pm.response.headers.get(\"Content-Type\") || \"\").to.include(\"application/json\"));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [],
+  "item": [
+    {
+      "name": "00 Auth and contract",
+      "description": "Authentication and error contract for every endpoint.",
+      "item": [
+        {
+          "name": "[P1] GET /v1/classes without API key -> 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** Unauthenticated access to member-facing data."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"unauthorized\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"unauthorized\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] GET /v1/plans with invalid API key -> 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "not-a-valid-key"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "plans"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** A wrong key must be rejected, not just a missing one."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"unauthorized\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"unauthorized\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] GET /v1/members/{id} without API key -> 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1001"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** PII exposure (name, email) without authentication."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"unauthorized\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"unauthorized\"));",
+                  "check(\"No personal data leaked\", () => pm.expect(pm.response.text()).to.not.include(\"anna@example.com\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] POST /v1/memberships without API key -> 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** Unauthenticated purchases create financial records.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\",\n  \"planId\": \"CITY-ONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"unauthorized\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"unauthorized\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] POST /v1/bookings without API key -> 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** Unauthenticated bookings would consume real class capacity.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"unauthorized\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"unauthorized\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Unknown route -> 404 Error body",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/does-not-exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "does-not-exist"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Consistent error contract for clients."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 Members (AC1)",
+      "description": "Profile details and current PG membership status; 404 for unknown members.",
+      "item": [
+        {
+          "name": "[P0] GET member M-1001 -> ACTIVE",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1001"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Status drives booking eligibility and what the member sees in the app; a stale or mis-mapped status lets frozen/expired members book or blocks paying members."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"id\",\"name\",\"email\",\"membership\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"},\"membership\":{\"type\":[\"object\",\"null\"],\"required\":[\"plan\",\"status\"],\"properties\":{\"plan\":{\"type\":\"string\"},\"status\":{\"enum\":[\"ACTIVE\",\"FROZEN\",\"EXPIRED\"]}}}}};",
+                  "check(\"Body matches Member schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const body = pm.response.json();",
+                  "check(\"id, name and email match Perfect Gym\", () => {",
+                  "  pm.expect(body.id).to.eql(\"M-1001\");",
+                  "  pm.expect(body.name).to.eql(\"Anna de Vries\");",
+                  "  pm.expect(body.email).to.eql(\"anna@example.com\");",
+                  "});",
+                  "check(\"Membership status is ACTIVE (current PG state)\", () => pm.expect(body.membership && body.membership.status).to.eql(\"ACTIVE\"));",
+                  "check(\"Membership plan is City Plus\", () => pm.expect(body.membership.plan).to.eql(\"City Plus\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] GET member M-1002 -> FROZEN",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1002",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1002"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Status drives booking eligibility and what the member sees in the app; a stale or mis-mapped status lets frozen/expired members book or blocks paying members."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"id\",\"name\",\"email\",\"membership\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"},\"membership\":{\"type\":[\"object\",\"null\"],\"required\":[\"plan\",\"status\"],\"properties\":{\"plan\":{\"type\":\"string\"},\"status\":{\"enum\":[\"ACTIVE\",\"FROZEN\",\"EXPIRED\"]}}}}};",
+                  "check(\"Body matches Member schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const body = pm.response.json();",
+                  "check(\"id, name and email match Perfect Gym\", () => {",
+                  "  pm.expect(body.id).to.eql(\"M-1002\");",
+                  "  pm.expect(body.name).to.eql(\"Tom Bakker\");",
+                  "  pm.expect(body.email).to.eql(\"tom@example.com\");",
+                  "});",
+                  "check(\"Membership status is FROZEN (current PG state)\", () => pm.expect(body.membership && body.membership.status).to.eql(\"FROZEN\"));",
+                  "check(\"Membership plan is City One\", () => pm.expect(body.membership.plan).to.eql(\"City One\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] GET member M-1003 -> EXPIRED",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1003",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1003"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Status drives booking eligibility and what the member sees in the app; a stale or mis-mapped status lets frozen/expired members book or blocks paying members."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"id\",\"name\",\"email\",\"membership\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"},\"membership\":{\"type\":[\"object\",\"null\"],\"required\":[\"plan\",\"status\"],\"properties\":{\"plan\":{\"type\":\"string\"},\"status\":{\"enum\":[\"ACTIVE\",\"FROZEN\",\"EXPIRED\"]}}}}};",
+                  "check(\"Body matches Member schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const body = pm.response.json();",
+                  "check(\"id, name and email match Perfect Gym\", () => {",
+                  "  pm.expect(body.id).to.eql(\"M-1003\");",
+                  "  pm.expect(body.name).to.eql(\"Lisa Jansen\");",
+                  "  pm.expect(body.email).to.eql(\"lisa@example.com\");",
+                  "});",
+                  "check(\"Membership status is EXPIRED (current PG state)\", () => pm.expect(body.membership && body.membership.status).to.eql(\"EXPIRED\"));",
+                  "check(\"Membership plan is City One\", () => pm.expect(body.membership.plan).to.eql(\"City One\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] GET member M-1004 -> no membership (prospect)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1004"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Status drives booking eligibility and what the member sees in the app; a stale or mis-mapped status lets frozen/expired members book or blocks paying members."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"id\",\"name\",\"email\",\"membership\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"},\"membership\":{\"type\":[\"object\",\"null\"],\"required\":[\"plan\",\"status\"],\"properties\":{\"plan\":{\"type\":\"string\"},\"status\":{\"enum\":[\"ACTIVE\",\"FROZEN\",\"EXPIRED\"]}}}}};",
+                  "check(\"Body matches Member schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const body = pm.response.json();",
+                  "check(\"id, name and email match Perfect Gym\", () => {",
+                  "  pm.expect(body.id).to.eql(\"M-1004\");",
+                  "  pm.expect(body.name).to.eql(\"Sara Visser\");",
+                  "  pm.expect(body.email).to.eql(\"sara@example.com\");",
+                  "});",
+                  "check(\"membership is null for a prospect\", () => pm.expect(body.membership).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] GET unknown member M-9999 -> 404 Error body",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-9999"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** AC1 explicitly requires 404 + Error body. A 200/null forces clients to special-case and can render an empty profile instead of an error."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 404 (member does not exist)\", () => pm.response.to.have.status(404));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Plans (AC2)",
+      "description": "Catalogue prices: EUR, 2 decimals, tier rule.",
+      "item": [
+        {
+          "name": "[P0] GET /v1/plans -> prices, currency and tier rule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "plans"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Revenue and customer trust: a prospect is quoted these prices; an inverted tier means under-charging every City Plus member."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"data\"],\"properties\":{\"data\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"name\",\"coverage\",\"category\",\"currency\",\"monthlyPrice\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"coverage\":{\"type\":\"string\"},\"category\":{\"enum\":[\"standard\",\"discounted\"]},\"currency\":{\"const\":\"EUR\"},\"monthlyPrice\":{\"type\":\"number\",\"exclusiveMinimum\":0}}}}}};",
+                  "check(\"Body matches Plans list schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const twoDp = (n) => typeof n === 'number' && Number.isFinite(n) && Math.round(n * 100) / 100 === n;",
+                  "const plans = pm.response.json().data;",
+                  "const byId = Object.fromEntries(plans.map(p => [p.id, p]));",
+                  "check(\"All three plans are offered\", () => pm.expect(Object.keys(byId)).to.have.members([\"CITY-ONE\", \"CITY-PLUS\", \"CITY-STUDENT\"]));",
+                  "check(\"Every price is EUR with at most 2 decimals\", () => plans.forEach(p => {",
+                  "  pm.expect(p.currency, p.id).to.eql(\"EUR\");",
+                  "  pm.expect(twoDp(p.monthlyPrice), `${p.id} price ${p.monthlyPrice}`).to.be.true;",
+                  "}));",
+                  "check(\"City One and City Plus are 'standard', City Student is 'discounted'\", () => {",
+                  "  pm.expect(byId[\"CITY-ONE\"].category).to.eql(\"standard\");",
+                  "  pm.expect(byId[\"CITY-PLUS\"].category).to.eql(\"standard\");",
+                  "  pm.expect(byId[\"CITY-STUDENT\"].category).to.eql(\"discounted\");",
+                  "});",
+                  "check(\"Tier rule: City Plus is priced HIGHER than City One\", () =>",
+                  "  pm.expect(byId[\"CITY-PLUS\"].monthlyPrice, \"City Plus price\").to.be.above(byId[\"CITY-ONE\"].monthlyPrice));",
+                  "check(\"Discounted City Student is cheaper than both standard plans\", () => {",
+                  "  pm.expect(byId[\"CITY-STUDENT\"].monthlyPrice).to.be.below(byId[\"CITY-ONE\"].monthlyPrice);",
+                  "  pm.expect(byId[\"CITY-STUDENT\"].monthlyPrice).to.be.below(byId[\"CITY-PLUS\"].monthlyPrice);",
+                  "});",
+                  "// Remember catalogue prices so the purchase tests can check they agree.",
+                  "plans.forEach(p => pm.collectionVariables.set(`price_${p.id}`, p.monthlyPrice));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Classes (AC3)",
+      "description": "Schedule in Europe/Amsterdam (DST-aware) and true PG availability.",
+      "item": [
+        {
+          "name": "[P0] GET /v1/classes -> schedule, timezone and availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Wrong times mean members miss classes; inflated spots cause failed bookings and customer-care load (see T2/T6)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"data\"],\"properties\":{\"data\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"name\",\"start_time\",\"capacity\",\"spots_available\"],\"properties\":{\"id\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"start_time\":{\"type\":\"string\"},\"capacity\":{\"type\":\"integer\",\"minimum\":0},\"spots_available\":{\"type\":\"integer\",\"minimum\":0}}}}}};",
+                  "check(\"Body matches Classes list schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const expected = {\"C-2001\":{\"name\":\"Spinning\",\"start\":\"2027-06-21T18:00:00+02:00\",\"capacity\":20,\"free\":15},\"C-2002\":{\"name\":\"Yoga\",\"start\":\"2027-06-22T09:00:00+02:00\",\"capacity\":15,\"free\":0},\"C-2003\":{\"name\":\"BodyPump\",\"start\":\"2027-06-23T19:30:00+02:00\",\"capacity\":25,\"free\":15},\"C-2004\":{\"name\":\"HIIT Express\",\"start\":\"2027-06-24T07:00:00+02:00\",\"capacity\":20,\"free\":0},\"C-2005\":{\"name\":\"Pilates\",\"start\":\"2027-11-15T18:00:00+01:00\",\"capacity\":12,\"free\":9}};",
+                  "const classes = pm.response.json().data;",
+                  "const byId = Object.fromEntries(classes.map(c => [c.id, c]));",
+                  "check(\"All scheduled classes are listed\", () => pm.expect(Object.keys(byId)).to.include.members(Object.keys(expected)));",
+                  "check(\"start_time is ISO 8601 with an explicit offset\", () => classes.forEach(c =>",
+                  "  pm.expect(c.start_time, c.id).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$/)));",
+                  "Object.entries(expected).forEach(([id, e]) => {",
+                  "  const c = byId[id] || {};",
+                  "  check(`${id} ${e.name}: start_time is ${e.start} (Europe/Amsterdam, DST-aware)`, () => pm.expect(c.start_time).to.eql(e.start));",
+                  "  check(`${id} ${e.name}: same instant as the PG schedule`, () => pm.expect(Date.parse(c.start_time)).to.eql(Date.parse(e.start)));",
+                  "  check(`${id} ${e.name}: capacity is ${e.capacity}`, () => pm.expect(c.capacity).to.eql(e.capacity));",
+                  "  check(`${id} ${e.name}: spots_available is ${e.free} (true PG remaining capacity)`, () => pm.expect(c.spots_available).to.eql(e.free));",
+                  "});",
+                  "check(\"0 <= spots_available <= capacity for every class\", () => classes.forEach(c => {",
+                  "  pm.expect(c.spots_available, c.id).to.be.at.least(0);",
+                  "  pm.expect(c.spots_available, c.id).to.be.at.most(c.capacity);",
+                  "}));",
+                  "// Baseline spots for the booking tests.",
+                  "classes.forEach(c => pm.collectionVariables.set(`spots_${c.id}`, c.spots_available));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 Memberships (AC2)",
+      "description": "Purchase flow for prospect M-1004 plus validation.",
+      "item": [
+        {
+          "name": "[P0] Purchase City One for prospect M-1004 -> 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Core revenue path; the price returned here is what the member is charged.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\",\n  \"planId\": \"CITY-ONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"membershipId\",\"memberId\",\"plan\",\"currency\",\"monthlyPrice\",\"status\"],\"properties\":{\"membershipId\":{\"type\":\"string\"},\"memberId\":{\"type\":\"string\"},\"plan\":{\"type\":\"string\"},\"currency\":{\"const\":\"EUR\"},\"monthlyPrice\":{\"type\":\"number\",\"exclusiveMinimum\":0},\"status\":{\"type\":\"string\"}}};",
+                  "check(\"Body matches Membership schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const twoDp = (n) => typeof n === 'number' && Number.isFinite(n) && Math.round(n * 100) / 100 === n;",
+                  "const m = pm.response.json();",
+                  "check(\"memberId echoes the request\", () => pm.expect(m.memberId).to.eql(\"M-1004\"));",
+                  "check(\"Price is EUR with at most 2 decimals\", () => {",
+                  "  pm.expect(m.currency).to.eql(\"EUR\");",
+                  "  pm.expect(twoDp(m.monthlyPrice), String(m.monthlyPrice)).to.be.true;",
+                  "});",
+                  "check(\"Price matches the GET /v1/plans catalogue price\", () =>",
+                  "  pm.expect(m.monthlyPrice).to.eql(Number(pm.collectionVariables.get(\"price_CITY-ONE\"))));",
+                  "check(\"Membership is ACTIVE after purchase\", () => pm.expect(m.status).to.eql(\"ACTIVE\"));",
+                  "pm.collectionVariables.set(\"purchased_CITY-ONE\", m.monthlyPrice);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] Purchase City Plus for M-1004 -> 201, priced above City One",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Tier rule enforced at the point of sale, not only in the catalogue.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\",\n  \"planId\": \"CITY-PLUS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"membershipId\",\"memberId\",\"plan\",\"currency\",\"monthlyPrice\",\"status\"],\"properties\":{\"membershipId\":{\"type\":\"string\"},\"memberId\":{\"type\":\"string\"},\"plan\":{\"type\":\"string\"},\"currency\":{\"const\":\"EUR\"},\"monthlyPrice\":{\"type\":\"number\",\"exclusiveMinimum\":0},\"status\":{\"type\":\"string\"}}};",
+                  "check(\"Body matches Membership schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const twoDp = (n) => typeof n === 'number' && Number.isFinite(n) && Math.round(n * 100) / 100 === n;",
+                  "const m = pm.response.json();",
+                  "check(\"memberId echoes the request\", () => pm.expect(m.memberId).to.eql(\"M-1004\"));",
+                  "check(\"Price is EUR with at most 2 decimals\", () => {",
+                  "  pm.expect(m.currency).to.eql(\"EUR\");",
+                  "  pm.expect(twoDp(m.monthlyPrice), String(m.monthlyPrice)).to.be.true;",
+                  "});",
+                  "check(\"Price matches the GET /v1/plans catalogue price\", () =>",
+                  "  pm.expect(m.monthlyPrice).to.eql(Number(pm.collectionVariables.get(\"price_CITY-PLUS\"))));",
+                  "check(\"Membership is ACTIVE after purchase\", () => pm.expect(m.status).to.eql(\"ACTIVE\"));",
+                  "pm.collectionVariables.set(\"purchased_CITY-PLUS\", m.monthlyPrice);",
+                  "check(\"Tier rule: purchased City Plus price > City One price\", () =>",
+                  "  pm.expect(m.monthlyPrice).to.be.above(Number(pm.collectionVariables.get(\"purchased_CITY-ONE\"))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Purchase City Student for M-1004 -> 201, discounted",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** Discount category must stay below standard pricing.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\",\n  \"planId\": \"CITY-STUDENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"membershipId\",\"memberId\",\"plan\",\"currency\",\"monthlyPrice\",\"status\"],\"properties\":{\"membershipId\":{\"type\":\"string\"},\"memberId\":{\"type\":\"string\"},\"plan\":{\"type\":\"string\"},\"currency\":{\"const\":\"EUR\"},\"monthlyPrice\":{\"type\":\"number\",\"exclusiveMinimum\":0},\"status\":{\"type\":\"string\"}}};",
+                  "check(\"Body matches Membership schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const twoDp = (n) => typeof n === 'number' && Number.isFinite(n) && Math.round(n * 100) / 100 === n;",
+                  "const m = pm.response.json();",
+                  "check(\"memberId echoes the request\", () => pm.expect(m.memberId).to.eql(\"M-1004\"));",
+                  "check(\"Price is EUR with at most 2 decimals\", () => {",
+                  "  pm.expect(m.currency).to.eql(\"EUR\");",
+                  "  pm.expect(twoDp(m.monthlyPrice), String(m.monthlyPrice)).to.be.true;",
+                  "});",
+                  "check(\"Price matches the GET /v1/plans catalogue price\", () =>",
+                  "  pm.expect(m.monthlyPrice).to.eql(Number(pm.collectionVariables.get(\"price_CITY-STUDENT\"))));",
+                  "check(\"Membership is ACTIVE after purchase\", () => pm.expect(m.status).to.eql(\"ACTIVE\"));",
+                  "pm.collectionVariables.set(\"purchased_CITY-STUDENT\", m.monthlyPrice);",
+                  "check(\"Discounted plan is cheaper than both standard plans\", () => {",
+                  "  pm.expect(m.monthlyPrice).to.be.below(Number(pm.collectionVariables.get(\"price_CITY-ONE\")));",
+                  "  pm.expect(m.monthlyPrice).to.be.below(Number(pm.collectionVariables.get(\"price_CITY-PLUS\")));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Member profile reflects the new membership",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/members/M-1004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "members",
+                "M-1004"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** End-to-end flow (sign up -> activate -> book): if PG/profile is not updated the new member cannot book. Note: spec does not define multiple purchases; this checks the profile shows *a* membership."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "check(\"membership is no longer null after a successful purchase\", () => pm.expect(body.membership).to.not.eql(null));",
+                  "check(\"membership status is ACTIVE\", () => pm.expect(body.membership && body.membership.status).to.eql(\"ACTIVE\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Unknown planId -> 400 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** planId is an enum in the contract; anything else must be rejected.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\",\n  \"planId\": \"CITY-GOLD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Missing planId -> 400 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Required field validation and clean error messages.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1004\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"Error message does not leak internals (\\\"undefined\\\")\", () => pm.expect(pm.response.json().error.message).to.not.include(\"undefined\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Missing memberId -> 400 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Required field validation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"CITY-ONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 400 (validation error, not 404)\", () => pm.response.to.have.status(400));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Unknown member -> 404 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** No memberships for members that do not exist in PG.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-9999\",\n  \"planId\": \"CITY-ONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Malformed JSON body -> 400 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "memberships"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Robustness: unparseable input must be a client error, not a misleading 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"memberId\": \"M-1004\", \"planId\": ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 400\", () => pm.response.to.have.status(400));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 Bookings (AC4)",
+      "description": "Eligibility (ACTIVE only), capacity and validation.",
+      "item": [
+        {
+          "name": "[P0] ACTIVE member M-1001 books Spinning C-2001 -> 201 CONFIRMED",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Primary happy path of the release.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"bookingId\",\"memberId\",\"classId\",\"className\",\"status\"],\"properties\":{\"bookingId\":{\"type\":\"string\"},\"memberId\":{\"type\":\"string\"},\"classId\":{\"type\":\"string\"},\"className\":{\"type\":\"string\"},\"status\":{\"const\":\"CONFIRMED\"}}};",
+                  "check(\"Body matches Booking schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "const b = pm.response.json();",
+                  "check(\"Booking echoes member and class\", () => {",
+                  "  pm.expect(b.memberId).to.eql(\"M-1001\");",
+                  "  pm.expect(b.classId).to.eql(\"C-2001\");",
+                  "  pm.expect(b.className).to.eql(\"Spinning\");",
+                  "});",
+                  "pm.collectionVariables.set(\"booking_C2001\", b.bookingId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] C-2001 spots_available changed by -1 (one confirmed booking)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Availability shown to members must match what was really booked in PG."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json().data.find(x => x.id === \"C-2001\");",
+                  "const before = Number(pm.collectionVariables.get(\"spots_C-2001\"));",
+                  "check(\"C-2001 spots_available is baseline -1 (one confirmed booking)\", () => pm.expect(c.spots_available).to.eql(before + (-1)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] FROZEN member M-1002 books C-2001 -> 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** AC4: only ACTIVE members may book. A false 201 tells a FROZEN member they are booked when PG holds no booking: they turn up to a class with no reservation (and spots are not reserved).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1002\",\n  \"classId\": \"C-2001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 422 (PG rejects FROZEN membership)\", () => pm.response.to.have.status(422));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"No bookingId returned for a rejected booking\", () => pm.expect(pm.response.json()).to.not.have.property(\"bookingId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] EXPIRED member M-1003 books C-2001 -> 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** AC4: only ACTIVE members may book. A false 201 tells a EXPIRED member they are booked when PG holds no booking: they turn up to a class with no reservation (and spots are not reserved).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1003\",\n  \"classId\": \"C-2001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 422 (PG rejects EXPIRED membership)\", () => pm.response.to.have.status(422));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"No bookingId returned for a rejected booking\", () => pm.expect(pm.response.json()).to.not.have.property(\"bookingId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] C-2001 spots_available changed by -1 (rejected bookings must not consume spots)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Availability shown to members must match what was really booked in PG."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json().data.find(x => x.id === \"C-2001\");",
+                  "const before = Number(pm.collectionVariables.get(\"spots_C-2001\"));",
+                  "check(\"C-2001 spots_available is baseline -1 (rejected bookings must not consume spots)\", () => pm.expect(c.spots_available).to.eql(before + (-1)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] Book full class Yoga C-2002 -> 409 class_full",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Overbooking a full class.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2002\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 409\", () => pm.response.to.have.status(409));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"class_full\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"class_full\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Book HIIT Express C-2004 (full in PG) -> 409 class_full",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** T2: PG capacity is 20/20; booking must be refused consistently with the class list.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2004\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 409\", () => pm.response.to.have.status(409));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));",
+                  "check(\"error.code is \\\"class_full\\\"\", () => pm.expect(pm.response.json().error.code).to.eql(\"class_full\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Unknown member -> 404 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** No bookings for non-existent members.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-9999\",\n  \"classId\": \"C-2003\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Unknown class -> 404 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** No bookings for non-existent classes.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-9999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 404\", () => pm.response.to.have.status(404));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Missing classId -> 400 Error body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Required field validation and accurate error semantics.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 400 (validation error, not 404)\", () => pm.response.to.have.status(400));",
+                  "const errSchema = {\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"string\",\"minLength\":1},\"message\":{\"type\":\"string\"}}}}};",
+                  "check(\"Body is an Error object {error:{code,message}}\", () => pm.response.to.have.jsonSchema(errSchema));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 Idempotency (AC5)",
+      "description": "Retries must not create duplicate bookings.",
+      "item": [
+        {
+          "name": "[P0] First booking with Idempotency-Key: M-1001 -> BodyPump C-2003",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Baseline for the retry tests.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2003\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Fresh key per collection run so reruns do not collide.",
+                  "pm.collectionVariables.set(\"idemKey\", \"idem-\" + pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const schema = {\"type\":\"object\",\"required\":[\"bookingId\",\"memberId\",\"classId\",\"className\",\"status\"],\"properties\":{\"bookingId\":{\"type\":\"string\"},\"memberId\":{\"type\":\"string\"},\"classId\":{\"type\":\"string\"},\"className\":{\"type\":\"string\"},\"status\":{\"const\":\"CONFIRMED\"}}};",
+                  "check(\"Body matches Booking schema\", () => pm.response.to.have.jsonSchema(schema));",
+                  "pm.collectionVariables.set(\"idem_bookingId\", pm.response.json().bookingId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] Retry same request + same Idempotency-Key -> original booking returned",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** AC5: flaky mobile networks retry; duplicates double-consume capacity and double-book members.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2003\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200 or 201 (replay of the original)\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const b = pm.response.json();",
+                  "check(\"Same bookingId as the original request (no duplicate created)\", () =>",
+                  "  pm.expect(b.bookingId).to.eql(pm.collectionVariables.get(\"idem_bookingId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P0] C-2003 spots_available changed by -1 (one booking despite the retry)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/classes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "classes"
+              ]
+            },
+            "description": "**Priority:** P0\n\n**Risk:** Availability shown to members must match what was really booked in PG."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const c = pm.response.json().data.find(x => x.id === \"C-2003\");",
+                  "const before = Number(pm.collectionVariables.get(\"spots_C-2003\"));",
+                  "check(\"C-2003 spots_available is baseline -1 (one booking despite the retry)\", () => pm.expect(c.spots_available).to.eql(before + (-1)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P2] Same Idempotency-Key with a different body -> rejected, no new booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P2\n\n**Risk:** Contract is silent; industry convention (e.g. Stripe, IETF draft) rejects key reuse with a different payload. Raise as a spec question if it fails.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2005\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Key reuse with a different payload is rejected (409/422)\", () => pm.expect(pm.response.code).to.be.oneOf([409, 422]));",
+                  "check(\"No new bookingId issued under a reused key\", () => {",
+                  "  const b = pm.response.json();",
+                  "  if (b.bookingId) pm.expect(b.bookingId).to.eql(pm.collectionVariables.get(\"idem_bookingId\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "[P1] Retry without Idempotency-Key (M-1001 re-books C-2001) -> no duplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Api-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bookings"
+              ]
+            },
+            "description": "**Priority:** P1\n\n**Risk:** AC5 says retries must not duplicate; the contract only mandates key-based dedupe. Clients that omit the header still double-book. Product question: should member+class be unique?",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"M-1001\",\n  \"classId\": \"C-2001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// ---- API details on failure (generated) ----",
+                  "const __MAX_BODY = 4000;",
+                  "const __mask = (k, v) => /api-key|authorization/i.test(k) ? \"***\" : v;",
+                  "const __pretty = (txt) => {",
+                  "  if (txt === undefined || txt === null || txt === \"\") return \"(empty)\";",
+                  "  let out = String(txt);",
+                  "  try { out = JSON.stringify(JSON.parse(out), null, 2); } catch (e) { /* not JSON, keep raw */ }",
+                  "  return out.length > __MAX_BODY ? out.slice(0, __MAX_BODY) + `\\n... (truncated, ${out.length} chars)` : out;",
+                  "};",
+                  "const __apiDetails = () => {",
+                  "  const r = pm.request;",
+                  "  const url = pm.variables.replaceIn(r.url.toString());",
+                  "  const query = r.url.query ? r.url.query.all().filter(q => !q.disabled).map(q => `${q.key}=${pm.variables.replaceIn(q.value || \"\")}`) : [];",
+                  "  const pathVars = r.url.variables ? r.url.variables.all().map(v => `${v.key}=${v.value}`) : [];",
+                  "  const reqHeaders = r.headers.all().filter(h => !h.disabled).map(h => `${h.key}: ${__mask(h.key, pm.variables.replaceIn(h.value))}`);",
+                  "  const reqBody = r.body && r.body.mode === \"raw\" ? pm.variables.replaceIn(r.body.raw) : \"\";",
+                  "  const resHeaders = pm.response.headers.all().map(h => `${h.key}: ${h.value}`);",
+                  "  return [",
+                  "    \"\",",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 API details \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "    `Request : ${r.method} ${url}`,",
+                  "    `Query params : ${query.length ? query.join(\"&\") : \"(none)\"}`,",
+                  "    `Path params  : ${pathVars.length ? pathVars.join(\", \") : \"(none)\"}`,",
+                  "    \"Request headers:\", ...reqHeaders.map(h => \"  \" + h),",
+                  "    \"Request body:\", __pretty(reqBody),",
+                  "    `Response : ${pm.response.code} ${pm.response.status} (${pm.response.responseTime} ms, ${pm.response.responseSize || 0} B)`,",
+                  "    \"Response headers:\", ...resHeaders.map(h => \"  \" + h),",
+                  "    \"Response body:\", __pretty(pm.response.text()),",
+                  "    \"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\",",
+                  "  ].join(\"\\n\");",
+                  "};",
+                  "const check = (name, fn) => pm.test(name, function () {",
+                  "  try { fn(); }",
+                  "  catch (err) { err.message = `${err.message}\\n${__apiDetails()}`; throw err; }",
+                  "});",
+                  "// ---- end prelude ----",
+                  "check(\"Duplicate booking of the same member+class is not CONFIRMED again\", () =>",
+                  "  pm.expect(pm.response.code, \"a second 201 means a duplicate booking\").to.not.eql(201));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

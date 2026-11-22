@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "booking.json",
+  "type": "object",
+  "required": [
+    "bookingId",
+    "memberId",
+    "classId",
+    "className",
+    "status"
+  ],
+  "properties": {
+    "bookingId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "memberId": {
+      "type": "string"
+    },
+    "classId": {
+      "type": "string"
+    },
+    "className": {
+      "type": "string"
+    },
+    "status": {
+      "const": "CONFIRMED"
+    }
+  }
+}
