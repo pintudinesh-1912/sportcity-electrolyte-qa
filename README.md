@@ -81,18 +81,21 @@ The collection and the evidence script change data on the server (purchases, boo
 ## AI usage and time
 
 **Tools:** Claude Code (Anthropic) was used as a pair-tester:
+- drafting the test plan and approach;
+- exploring the API with curl and capturing the evidence for each task;
 - generating the Postman collection from a Python script;
-- drafting the findings report;
-- writing the pytest suite.
+- drafting the findings report and building the PDF;
+- writing the pytest suite;
+- the final checks (fresh-clone run, link and lint checks).
 
 I reviewed every finding against the raw evidence, made the prioritisation and release decisions, and directed the changes (for example, request/response details on every failed assertion, and Allure and Newman reporting). The mock server was treated as a black box: its source was never read.
 
 **Time spent (approximate):**
 
-| Part | Time      |
-|---|-----------|
-| Setup and planning | _30 mins_ |
-| Part 1: test design | _10 mins_ |
-| Part 2: findings | _10 mins_ |
-| Part 3: automation | _20 mins_ |
-| Packaging | _30 mins_ |
+| Part | Time |
+|---|---|
+| Setup and planning | 30 mins |
+| Part 1: test design | 10 mins |
+| Part 2: findings | 10 mins |
+| Part 3: automation | 20 mins |
+| Packaging | 30 mins |
