@@ -2,8 +2,8 @@ import allure
 import pytest
 
 from conftest import PG_TRUTH
-from support.api_client import Snapshot
 from support import known_bugs
+from support.api_client import Snapshot
 from support.assertions import assert_error, assert_schema, assert_status, check, has_two_decimals_max
 
 

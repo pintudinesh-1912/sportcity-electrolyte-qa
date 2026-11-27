@@ -276,8 +276,8 @@ member_items = []
 for mid, (name, email, ms) in PG_MEMBERS.items():
     state = ms["status"] if ms else "no membership (prospect)"
     t = status_is(200) + schema("Member", MEMBER)
-    t += f"const body = pm.response.json();\n"
-    t += f'pm.test("id, name and email match Perfect Gym", () => {{\n'
+    t += "const body = pm.response.json();\n"
+    t += 'pm.test("id, name and email match Perfect Gym", () => {\n'
     t += f'  pm.expect(body.id).to.eql("{mid}");\n  pm.expect(body.name).to.eql("{name}");\n  pm.expect(body.email).to.eql("{email}");\n}});\n'
     if ms:
         t += f'pm.test("Membership status is {ms["status"]} (current PG state)", () => pm.expect(body.membership && body.membership.status).to.eql("{ms["status"]}"));\n'

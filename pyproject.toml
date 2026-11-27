@@ -12,3 +12,17 @@ dependencies = [
 
 [dependency-groups]
 report = ["markdown>=3.7,<4"]   # builds the Part 2 PDF (part2-findings/build_report.py)
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Embeds Postman JavaScript test scripts as string literals; wrapping them hurts readability.
+"part1-test-design/build_collection.py" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["support", "conftest"]

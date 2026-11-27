@@ -80,9 +80,7 @@ The collection and the evidence script change data on the server (purchases, boo
 
 ## AI usage and time
 
-**Tools:** Claude Code (Anthropic) was used as a pair-tester throughout:
-- planning the approach;
-- exploring the API with curl;
+**Tools:** Claude Code (Anthropic) was used as a pair-tester:
 - generating the Postman collection from a Python script;
 - drafting the findings report;
 - writing the pytest suite.
@@ -91,10 +89,10 @@ I reviewed every finding against the raw evidence, made the prioritisation and r
 
 **Time spent (approximate):**
 
-| Part | Time |
-|---|---|
-| Setup and planning | _fill in_ |
-| Part 1: test design | _fill in_ |
-| Part 2: findings | _fill in_ |
-| Part 3: automation | _fill in_ |
-| Packaging | _fill in_ |
+| Part | Time      |
+|---|-----------|
+| Setup and planning | _30 mins_ |
+| Part 1: test design | _10 mins_ |
+| Part 2: findings | _10 mins_ |
+| Part 3: automation | _20 mins_ |
+| Packaging | _30 mins_ |
